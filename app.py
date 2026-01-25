@@ -8,20 +8,33 @@ def md_to_html(md_string):
     # MarkdownをHTMLに変換する関数
     raw_html = markdown.markdown(
         md_string,
-        extensions=["fenced_code", "tables"]
+        extensions=[
+        "extra",        # 基本拡張セット（重要）
+        "fenced_code",  # ``` コードブロック
+        "tables",       # テーブル
+        "toc",          # 目次
+        "footnotes",    # 脚注
+        "attr_list",    # 属性指定
+        "def_list",     # 定義リスト
+        ]
     )
 
     allowed_tags = bleach.sanitizer.ALLOWED_TAGS.union({
-        "h1", "h2", "h3",
-        "p",
+        "h1", "h2", "h3", "h4", "h5", "h6",
+        "p", "br",
         "ul", "ol", "li",
+        "strong", "em", "del",
+        "blockquote",
         "pre", "code",
-        "a"
+        "table", "thead", "tbody", "tr", "th", "td",
+        "a",
+        "hr"
     })
 
     allowed_attrs = {
-        "*": ["class"],
-        "a": ["href", "title"]
+        "*": ["class", "id"],
+        "a": ["href", "title"],
+        "img": ["src", "alt"]
     }
 
     safe_html = bleach.clean(
