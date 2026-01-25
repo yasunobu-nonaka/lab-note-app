@@ -6,11 +6,31 @@ app = Flask(__name__)
 
 def md_to_html(md_string):
     # MarkdownをHTMLに変換する関数
-    raw_html = markdown.markdown(md_string)
+    raw_html = markdown.markdown(
+        md_string,
+        extensions=["fenced_code", "tables"]
+    )
+
+    allowed_tags = bleach.sanitizer.ALLOWED_TAGS.union({
+        "h1", "h2", "h3",
+        "p",
+        "ul", "ol", "li",
+        "pre", "code",
+        "a"
+    })
+
+    allowed_attrs = {
+        "*": ["class"],
+        "a": ["href", "title"]
+    }
+
     safe_html = bleach.clean(
         raw_html,
-        tags={"h1", "h2", "p", "ul", "li", "table"},
+        tags=allowed_tags,
+        attributes=allowed_attrs,
+        strip=True
     )
+
     return safe_html
 
 @app.route("/")
@@ -21,4 +41,4 @@ def index():
     return render_template("index.html", markdown=html_text)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8000)
