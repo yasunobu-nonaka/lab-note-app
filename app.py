@@ -16,6 +16,7 @@ def md_to_html(md_string):
         "footnotes",    # 脚注
         "attr_list",    # 属性指定
         "def_list",     # 定義リスト
+        "pymdownx.tilde",  # ~~打ち消し線~~
         ]
     )
 
