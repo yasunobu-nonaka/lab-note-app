@@ -18,7 +18,12 @@ def md_to_html(md_string):
         "def_list",     # 定義リスト
         "pymdownx.tilde",  # ~~打ち消し線~~
         "pymdownx.tasklist", # タスクリスト
-        ]
+        ],
+        extension_configs={
+            "pymdownx.tasklist": {
+                "custom_checkbox": True  # HTMLをきれいにする
+            }
+        }
     )
 
     allowed_tags = bleach.sanitizer.ALLOWED_TAGS.union({
