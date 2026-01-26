@@ -1,0 +1,29 @@
+blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #555;
+  background: #f9f9f9;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+
+/* .task-list {
+  list-style: none;
+  padding-left: 0;
+} */
+
+.task-list-item {
+  margin-left: 0;
+}
+
+.task-list-item input {
+  margin-right: 0.5rem;
+}

@@ -17,6 +17,7 @@ def md_to_html(md_string):
         "attr_list",    # 属性指定
         "def_list",     # 定義リスト
         "pymdownx.tilde",  # ~~打ち消し線~~
+        "pymdownx.tasklist", # タスクリスト
         ]
     )
 
@@ -29,13 +30,17 @@ def md_to_html(md_string):
         "pre", "code",
         "table", "thead", "tbody", "tr", "th", "td",
         "a",
-        "hr"
+        "hr",
+        "input",
+        "label"
     })
 
     allowed_attrs = {
         "*": ["class", "id"],
         "a": ["href", "title"],
-        "img": ["src", "alt"]
+        "img": ["src", "alt"],
+        "input": ["type", "checked", "disabled"]
+
     }
 
     safe_html = bleach.clean(
