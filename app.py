@@ -23,7 +23,7 @@ def md_to_html(md_string):
         .use(deflist_plugin)
         .use(sub_plugin)
         .enable('table')
-        .enable("strikethrough")
+        .enable("strikethrough") # 打ち消し線の表示
     )
 
     raw_html = md.render(md_string)
@@ -35,15 +35,15 @@ def md_to_html(md_string):
         "h1", "h2", "h3", "h4", "h5", "h6",
         "p", "br",
         "ul", "ol", "li",
-        "strong", "em", "del", "s",
-        "blockquote",
+        "strong", "em", "del", "s", # （左から）太字、イタリック、打ち消し線、打ち消し線
+        "blockquote", # 引用
         "pre", "code",
         "table", "thead", "tbody", "tr", "th", "td",
         "a",
         "hr",
         "input",
         "label",
-        "sub", "sup"
+        "sub", "sup" # 上付き文字、下付き文字
     })
 
     allowed_attrs = {
