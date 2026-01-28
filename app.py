@@ -1,51 +1,59 @@
 from flask import Flask, render_template
-import markdown
+from flask import Flask, render_template
+from markdown_it import MarkdownIt
+from mdit_py_plugins.tasklists import tasklists_plugin
+from mdit_py_plugins.footnote import footnote_plugin
+from mdit_py_plugins.deflist import deflist_plugin
+from mdit_py_plugins.subscript import sub_plugin
 import bleach
 
 app = Flask(__name__)
 
 def md_to_html(md_string):
     # MarkdownをHTMLに変換する関数
-    raw_html = markdown.markdown(
-        md_string,
-        extensions=[
-        "extra",        # 基本拡張セット（重要）
-        "fenced_code",  # ``` コードブロック
-        "tables",       # テーブル
-        "toc",          # 目次
-        "footnotes",    # 脚注
-        "attr_list",    # 属性指定
-        "def_list",     # 定義リスト
-        "pymdownx.tilde",  # ~~打ち消し線~~
-        "pymdownx.tasklist", # タスクリスト
-        ],
-        extension_configs={
-            "pymdownx.tasklist": {
-                "custom_checkbox": True  # HTMLをきれいにする
+
+    md = (
+        MarkdownIt("commonmark", {
+            "html": True,
+            "breaks": True,
             }
-        }
+        )
+        .use(tasklists_plugin, enabled=True)
+        .use(footnote_plugin) # 例：これは脚注付きの文章です。[1]
+        .use(deflist_plugin)
+        .use(sub_plugin)
+        .enable('table')
+        .enable("strikethrough")
     )
+
+    raw_html = md.render(md_string)
+    
+    # raw_html = raw_html.replace("<s>", "<del>")
+    # raw_html = raw_html.replace("</s>", "</del>")
+
+    with open("outputs/raw_html.html", "w", encoding="utf-8") as f:
+        f.write(raw_html)
 
     allowed_tags = bleach.sanitizer.ALLOWED_TAGS.union({
         "h1", "h2", "h3", "h4", "h5", "h6",
         "p", "br",
         "ul", "ol", "li",
-        "strong", "em", "del",
+        "strong", "em", "del", "s",
         "blockquote",
         "pre", "code",
         "table", "thead", "tbody", "tr", "th", "td",
         "a",
         "hr",
         "input",
-        "label"
+        "label",
+        "sub", "sup"
     })
 
     allowed_attrs = {
         "*": ["class", "id"],
         "a": ["href", "title"],
         "img": ["src", "alt"],
-        "input": ["type", "checked", "disabled"]
-
+        "input": ["type", "checked", "disabled"],
     }
 
     safe_html = bleach.clean(
@@ -55,7 +63,64 @@ def md_to_html(md_string):
         strip=True
     )
 
+    with open("outputs/sanitized_html.html", "w", encoding="utf-8") as f:
+        f.write(safe_html)
+
     return safe_html
+
+# def md_to_html(md_string):
+#     # MarkdownをHTMLに変換する関数
+
+#     raw_html = markdown.markdown(
+#         md_string,
+#         extensions=[
+#             "extra",        # 基本拡張セット（重要）
+#             "fenced_code",  # ``` コードブロック
+#             "tables",       # テーブル
+#             "toc",          # 目次
+#             "footnotes",    # 脚注
+#             "attr_list",    # 属性指定
+#             "def_list",     # 定義リスト
+#             "pymdownx.tilde",  # ~~打ち消し線~~
+#             "pymdownx.tasklist", # タスクリスト
+#         ],
+#         extension_configs={
+#             "pymdownx.tasklist": {
+#                 "custom_checkbox": True  # HTMLをきれいにする
+#             }
+#         }
+#     )
+
+#     allowed_tags = bleach.sanitizer.ALLOWED_TAGS.union({
+#         "h1", "h2", "h3", "h4", "h5", "h6",
+#         "p", "br",
+#         "ul", "ol", "li",
+#         "strong", "em", "del",
+#         "blockquote",
+#         "pre", "code",
+#         "table", "thead", "tbody", "tr", "th", "td",
+#         "a",
+#         "hr",
+#         "input",
+#         "label"
+#     })
+
+#     allowed_attrs = {
+#         "*": ["class", "id"],
+#         "a": ["href", "title"],
+#         "img": ["src", "alt"],
+#         "input": ["type", "checked", "disabled"]
+
+#     }
+
+#     safe_html = bleach.clean(
+#         raw_html,
+#         tags=allowed_tags,
+#         attributes=allowed_attrs,
+#         strip=True
+#     )
+
+#     return safe_html
 
 @app.route("/")
 def index():
