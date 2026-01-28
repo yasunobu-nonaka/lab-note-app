@@ -21,10 +21,10 @@ th, td {
   padding: 0.5rem;
 }
 
-/* .task-list {
+.contains-task-list {
   list-style: none;
   padding-left: 0;
-} */
+}
 
 .task-list-item {
   margin-left: 0;
