@@ -21,6 +21,21 @@ th, td {
   padding: 0.5rem;
 }
 
+pre {
+  background-color: #2d2d2d;
+  color: #f8f8f2;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+pre code {
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
 .contains-task-list {
   list-style: none;
   padding-left: 0;
