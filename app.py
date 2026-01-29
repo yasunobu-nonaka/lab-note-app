@@ -39,13 +39,14 @@ def md_to_html(md_string):
         "blockquote", # 引用
         "pre", "code",
         "table", "thead", "tbody", "tr", "th", "td",
-        "label", "input",
+        "input", # チェックボックス付きリストで使用
         "sub", "sup", # 上付き文字、下付き文字
         "dl", "dt", "dd" # 定義リスト
     })
 
     allowed_attrs = {
         "ul": ["class"],
+        "li": ["class"],
         "a": ["href", "title"],
         "img": ["src", "alt"],
         "input": ["type", "checked", "disabled"],
@@ -58,7 +59,6 @@ def md_to_html(md_string):
         tags=allowed_tags,
         attributes=allowed_attrs,
         protocols=allowed_protocols,
-        strip=True
     )
 
     with open("outputs/sanitized_html.html", "w", encoding="utf-8") as f:
