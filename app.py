@@ -45,7 +45,7 @@ def md_to_html(md_string):
     })
 
     allowed_attrs = {
-        "*": ["class", "id"],
+        "ul": ["class"],
         "a": ["href", "title"],
         "img": ["src", "alt"],
         "input": ["type", "checked", "disabled"],
