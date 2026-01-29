@@ -33,16 +33,13 @@ def md_to_html(md_string):
 
     allowed_tags = bleach.sanitizer.ALLOWED_TAGS.union({
         "h1", "h2", "h3", "h4", "h5", "h6",
-        "p", "br",
+        "p", "a", "img", "br", "hr",
         "ul", "ol", "li",
         "strong", "em", "del", "s", # （左から）太字、イタリック、打ち消し線、打ち消し線
         "blockquote", # 引用
         "pre", "code",
         "table", "thead", "tbody", "tr", "th", "td",
-        "a",
-        "hr",
-        "input",
-        "label",
+        "label", "input",
         "sub", "sup" # 上付き文字、下付き文字
     })
 
