@@ -40,7 +40,8 @@ def md_to_html(md_string):
         "pre", "code",
         "table", "thead", "tbody", "tr", "th", "td",
         "label", "input",
-        "sub", "sup" # 上付き文字、下付き文字
+        "sub", "sup", # 上付き文字、下付き文字
+        "dl", "dt", "dd" # 定義リスト
     })
 
     allowed_attrs = {
