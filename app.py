@@ -51,10 +51,13 @@ def md_to_html(md_string):
         "input": ["type", "checked", "disabled"],
     }
 
+    allowed_protocols = ["http", "https", "mailto"]
+
     safe_html = bleach.clean(
         raw_html,
         tags=allowed_tags,
         attributes=allowed_attrs,
+        protocols=allowed_protocols,
         strip=True
     )
 
