@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}保存完了{% endblock %}
+
+{% block content %}
+    <h1>保存しました</h1>
+
+    <h2>{{ note.title }}</h2>
+
+    <pre>{{ note.content_md }}</pre>
+
+    <a href="/notes/new">もう１件作成</a>
+{% endblock %}
+

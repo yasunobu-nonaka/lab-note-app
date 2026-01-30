@@ -31,10 +31,10 @@ def new_note():
     return render_template("notes/new.html")
 
 
-@app.route("/notes", method=["POSt"])
+@app.route("/notes", methods=["POST"])
 def create_note():
     title = request.form["title"]
-    content_md = request.form["content"]
+    content_md = request.form["content_md"]
 
     note = Note(title=title, content_md=content_md)
     db.session.add(note)

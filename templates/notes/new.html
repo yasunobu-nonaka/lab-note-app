@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}新規ノート{% endblock %}
+
+{% block content %}
+<h1>新規ノート作成</h1>
+
+<form action="/notes" method="post">
+  <div>
+    <input
+      type="text"
+      name="title"
+      placeholder="実験タイトル"
+      required="required"
+    />
+  </div>
+  <div>
+    <textarea
+      name="content_md"
+      rows="15"
+      placeholder="Markdownで実験内容を記述してください"
+    ></textarea>
+  </div>
+
+  <button type="submit">保存</button>
+</form>
+{% endblock %}
