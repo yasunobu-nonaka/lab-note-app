@@ -43,6 +43,13 @@ def create_note():
     return render_template("notes/created.html", note=note)
 
 
+@app.route("/notes/<int:note_id>")
+def show_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    html_text = md_to_html(note.content_md)
+    return render_template("notes/show.html", note=note, html_text=html_text)
+
+
 @app.route("/note")
 def note():
     with open("markdowns/sample.md", "r") as f:
