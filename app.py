@@ -1,13 +1,46 @@
-from flask import Flask, render_template
-from flask import Flask, render_template
-
+from flask import Flask, render_template, request
+from flask_sqlalchemy import SQLAlchemy
 from utils import md_to_html
+from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+jst = timezone(timedelta(hours=9))
+aware_jst_time = datetime.now(jst)
+
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content_md = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=aware_jst_time)
+    updated_at = db.Column(
+        db.DateTime, default=aware_jst_time, onupdate=aware_jst_time
+    )
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/notes/new")
+def new_note():
+    return render_template("notes/new.html")
+
+
+@app.route("/notes", method=["POSt"])
+def create_note():
+    title = request.form["title"]
+    content_md = request.form["content"]
+
+    note = Note(title=title, content_md=content_md)
+    db.session.add(note)
+    db.session.commit()
+
+    return render_template("notes/created.html", note=note)
 
 
 @app.route("/note")
@@ -17,5 +50,8 @@ def note():
     html_text = md_to_html(md_text)
     return render_template("note.html", markdown=html_text)
 
+
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(debug=True, port=8000)
