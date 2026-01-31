@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from utils import md_to_html
 from datetime import datetime, timedelta, timezone
@@ -54,6 +54,24 @@ def show_note(note_id):
     note = Note.query.get_or_404(note_id)
     html_text = md_to_html(note.content_md)
     return render_template("notes/show.html", note=note, html_text=html_text)
+
+
+@app.route("/notes/<int:note_id>/edit")
+def edit_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    return render_template("notes/edit.html", note=note)
+
+
+@app.route("/notes/<int:note_id>/update", methods=["POST"])
+def update_note(note_id):
+    note = Note.query.get_or_404(note_id)
+
+    note.title = request.form["title"]
+    note.content_md = request.form["content_md"]
+
+    db.session.commit()
+
+    return redirect(f"/notes/{note.id}")
 
 
 @app.route("/note")
