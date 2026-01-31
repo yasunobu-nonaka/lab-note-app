@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}ノート一覧{% endblock %}
+
+{% block content %}
+  <h1>ノート一覧</h1>
+
+  <a href="/notes/new">+ 新規ノート作成</a>
+
+  <hr>
+
+  {% if notes %}
+    <ul>
+        {% for note in notes %}
+            <li>
+                <a href="/notes/{{ note.id }}">
+                    {{ note.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+  {% else %}
+    <p>まだノートがありません。</p>
+  {% endif %}
+{% endblock %}

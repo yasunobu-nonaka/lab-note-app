@@ -43,6 +43,12 @@ def create_note():
     return render_template("notes/created.html", note=note)
 
 
+@app.route("/notes")
+def notes_index():
+    notes = Note.query.order_by(Note.id.desc()).all()
+    return render_template("notes/index.html", notes=notes)
+
+
 @app.route("/notes/<int:note_id>")
 def show_note(note_id):
     note = Note.query.get_or_404(note_id)
