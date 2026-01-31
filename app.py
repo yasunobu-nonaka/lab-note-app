@@ -74,6 +74,16 @@ def update_note(note_id):
     return redirect(f"/notes/{note.id}")
 
 
+@app.route("/notes/<int:note_id>/delete", methods=["POST"])
+def delete_note(note_id):
+    note = Note.query.get_or_404(note_id)
+
+    db.session.delete(note)
+    db.session.commit()
+
+    return redirect("/notes")
+
+
 @app.route("/note")
 def note():
     with open("markdowns/sample.md", "r") as f:

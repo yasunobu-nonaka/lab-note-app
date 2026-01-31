@@ -9,7 +9,12 @@
 {% block content %}
     <h1>{{ note.title }}</h1>
     <a href="/notes/{{ note.id }}/edit">編集</a>
-    <br>
+    
+
+    <form method="post" action="/notes/{{ note.id }}/delete" style="display:inline;" onsubmit="return confirm('本当に削除しますか？');">
+        <button type="submit">削除</button>
+    </form>
+
     <hr>
 
     <div>
