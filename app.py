@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from utils import md_to_html
 from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
+app.secret_key = "dev-secret-key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -80,6 +81,8 @@ def delete_note(note_id):
 
     db.session.delete(note)
     db.session.commit()
+
+    flash("ノートを削除しました。")
 
     return redirect("/notes")
 
