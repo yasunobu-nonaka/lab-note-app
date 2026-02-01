@@ -25,10 +25,29 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 </head>
-</head>
-<body>
-    <main>
-        {% block content %}{% endblock %}
+<body class="bg-gray-100 text-gray-900">
+    <header class="bg-white shadow">
+      <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between">
+        <a href="/notes" class="font-semibold text-lg">
+          🧪 Lab Notes
+        </a>
+        <a href="/notes/new" class="text-sm text-blue-600">
+          新規作成
+        </a>
+      </div>
+    </header>
+    <main class="max-w-4xl mx-auto px-4 py-6">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="mb-4 p-3 rounded bg-green-100 text-green-800">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
     </main>
 </body>
 </html>

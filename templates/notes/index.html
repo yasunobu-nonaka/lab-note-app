@@ -3,27 +3,18 @@
 {% block title %}ノート一覧{% endblock %}
 
 {% block content %}
-  <h1>ノート一覧</h1>
-
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <div style="color: green;">
-        {% for message in messages %}
-          <p>{{ message }}</p>
-        {% endfor %}
-      </div>
-      <br>
-    {% endif %}
-  {% endwith %}
-
-  <a href="/notes/new">+ 新規ノート作成</a>
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-3xl font-bold">ノート一覧</h1>
+        <!-- <a href="/notes/new" class="text-xl text-blue-400 mb-3">+ 新規ノート作成</a> -->
+        <a href="/notes/new" class="text-xl  bg-gray-300 rounded px-3 py-2">+ 新規ノート作成</a>
+    </div>
 
   <hr>
 
   {% if notes %}
-    <ul>
+    <ul class="my-4">
         {% for note in notes %}
-            <li>
+            <li class="mb-2 p-2 text-xl bg-gray-200 shadow rounded">
                 <a href="/notes/{{ note.id }}">
                     {{ note.title }}
                 </a>
@@ -31,6 +22,6 @@
         {% endfor %}
     </ul>
   {% else %}
-    <p>まだノートがありません。</p>
+    <p class="text-gray-600">まだノートがありません。</p>
   {% endif %}
 {% endblock %}
