@@ -72,6 +72,8 @@ def update_note(note_id):
 
     db.session.commit()
 
+    flash("ノートを更新しました。")
+
     return redirect(f"/notes/{note.id}")
 
 

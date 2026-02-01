@@ -8,6 +8,18 @@
 
 {% block content %}
     <h1>{{ note.title }}</h1>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div style="color: green;">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+      <br>
+    {% endif %}
+  {% endwith %}
+
     <a href="/notes/{{ note.id }}/edit">編集</a>
     
 
