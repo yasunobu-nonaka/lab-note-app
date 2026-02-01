@@ -1,32 +1,102 @@
-blockquote {
-  border-left: 4px solid #ccc;
-  padding-left: 1rem;
-  margin: 1rem 0;
+.markdown-body {
+    line-height: 1.7;
+    max-width: 100ch;
+}
+
+/* 見出し */
+.markdown-body h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-body h2 {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-top: 1.2rem;
+    margin-bottom: 0.4rem;
+}
+
+.markdown-body h3 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 0.3em;
+}
+
+.markdown-body h4 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 0.3em;
+}
+
+.markdown-body h5 {
+  font-size: 0.95rem;
+  font-weight: bold;
+  margin-top: 0.8em;
+  margin-bottom: 0.2em;
+}
+
+.markdown-body h6 {
+  font-size: 0.9rem;
+  font-weight: bold;
   color: #555;
-  background: #f9f9f9;
+  margin-top: 0.6em;
+  margin-bottom: 0.2em;
 }
 
-ul {
+.markdown-body p {
+    margin: 0.5em 0;
+}
+
+.markdown-body a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.markdown-body a:hover {
+    color: #1e40af;
+}
+
+.markdown-body ul {
   list-style-type: disc;
-  padding-left: 20px;
-  margin-left: 0;
+  /* padding-left: 20px; */
+  padding-left: 1.5em;
+  /* margin-left: 0; */
+  margin: 0.2em 0;
 }
 
-ol {
-  padding-left: 25px;
-  margin-left: 0;
+.markdown-body ol {
+    list-style-type: decimal;
+    /* padding-left: 25px; */
+    padding-left: 1.5em;
+    /* margin-left: 0; */
+    margin: 0.2em 0;
 }
 
-table {
+.markdown-body li {
+    margin: 0.2em 0;
+}
+
+.markdown-body table {
   border-collapse: collapse;
+  margin: 1em 0;
 }
 
-th, td {
+.markdown-body th,
+.markdown-body td {
   border: 1px solid #ccc;
-  padding: 0.5rem;
+  padding: 0.4em 0.6em;
 }
 
-pre {
+.markdown-body th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.markdown-body pre {
   background-color: #2d2d2d;
   color: #f8f8f2;
   padding: 1em;
@@ -34,13 +104,35 @@ pre {
   overflow-x: auto;
 }
 
-pre code {
+.markdown-body pre code {
   font-family: Consolas, Monaco, "Courier New", monospace;
   font-size: 14px;
   line-height: 1.5;
 }
 
-.contains-task-list {
+.markdown-body .contains-task-list {
   list-style: none;
   padding-left: 0;
+}
+
+.markdown-body dl {
+  margin: 0.8em 0;
+}
+
+.markdown-body dt {
+  font-weight: bold;
+  margin-top: 0.5em;
+}
+
+.markdown-body dd {
+    margin-left: 1.5em;
+    margin-bottom: 0.3em;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #555;
+  background: #f9f9f9;
 }
