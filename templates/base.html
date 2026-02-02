@@ -27,7 +27,7 @@
 </head>
 <body class="bg-gray-100 text-gray-900">
     <header class="bg-white shadow">
-      <div class="max-w-4xl mx-auto px-4 py-3 flex items-center">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center">
         <a href="/notes" class="font-semibold text-lg">🧪 Lab Notes</a>
         
         <div class="ml-auto flex space-x-3">
@@ -36,7 +36,7 @@
         </div>
       </div>
     </header>
-    <main class="max-w-4xl mx-auto px-4 py-6">
+    <main class="max-w-6xl mx-auto px-4 py-6">
       {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -57,5 +57,6 @@
 
       {% block content %}{% endblock %}
     </main>
+    {% block markedjs %}{% endblock %}
 </body>
 </html>
