@@ -3,22 +3,32 @@
 {% block title %}ノート編集{% endblock %}
 
 {% block content %}
-    <h1>ノート編集</h1>
+    <h1 class="text-xl mb-4">ノート編集</h1>
 
     <form action="/notes/{{ note.id }}/update" method="post">
         <div>
-            <input type="text" name="title" value="{{ note.title }}" required>
+            <input 
+                class="w-full bg-white border-1 border-solid px-1 py-2 mb-4"
+                type="text"
+                name="title"
+                value="{{ note.title }}"
+                required
+            >
         </div>
 
         <div>
-            <textarea name="content_md" rows="20">{{ note.content_md }}</textarea>
+            <textarea
+            class="w-full bg-white border-1 border-solid px-1 py-2"
+            name="content_md"
+            rows="20"
+            >{{ note.content_md }}</textarea>
         </div>
 
-        <button type="submit">更新</button>
+        <button class="bg-white shadow p-2 rounded" type="submit">更新</button>
     </form>
 
-    <hr>
-    
+    <br>
+
     <a href="/notes/{{ note.id }}">キャンセル</a>
 {% endblock %}
 

@@ -3,11 +3,12 @@
 {% block title %}新規ノート{% endblock %}
 
 {% block content %}
-<h1>新規ノート作成</h1>
+<h1 class="text-xl mb-4">新規ノート作成</h1>
 
 <form action="/notes" method="post">
   <div>
     <input
+      class="w-full bg-white border-1 border-solid px-1 py-2 mb-4"
       type="text"
       name="title"
       placeholder="実験タイトル"
@@ -16,13 +17,14 @@
   </div>
   <div>
     <textarea
+      class="w-full bg-white border-1 border-solid px-1 py-2"
       name="content_md"
       rows="15"
       placeholder="Markdownで実験内容を記述してください"
     ></textarea>
   </div>
 
-  <button type="submit">保存</button>
+  <button class="bg-white shadow p-2 rounded" type="submit">保存</button>
 </form>
 
 <br>
