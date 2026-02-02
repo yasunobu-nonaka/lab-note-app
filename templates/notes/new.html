@@ -2,6 +2,10 @@
 
 {% block title %}新規ノート{% endblock %}
 
+{% block css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+{% endblock %}
+
 {% block content %}
 <h1 class="text-xl mb-4">新規ノート作成</h1>
 
@@ -15,13 +19,21 @@
       required="required"
     />
   </div>
-  <div>
+
+  <div class="grid grid-cols-2 gap-4 h-[90vh] mb-2">
     <textarea
-      class="w-full bg-white border-1 border-solid px-1 py-2"
+      class="w-full h-[90vh] resize-none overflow-auto
+      bg-white font-mono border-1 border-solid px-1 py-2"
+      id="editor"
       name="content_md"
-      rows="15"
+      rows="20"
       placeholder="Markdownで実験内容を記述してください"
     ></textarea>
+
+    <div
+      class="h-full overflow-auto rounded bg-white border p-4 markdown-body"
+      id="preview"
+    ></div>
   </div>
 
   <button class="bg-white shadow p-2 rounded" type="submit">保存</button>
@@ -31,4 +43,22 @@
 
 <a href="/notes">一覧へ戻る</a>
 
+{% endblock %}
+
+{% block markedjs %}
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    <script>
+        const editor = document.getElementById("editor")
+        const preview = document.getElementById("preview")
+
+        function updatePreview() {
+            const markdown = editor.value;
+            const html = marked.parse(markdown);
+            preview.innerHTML = html;
+        }
+
+        editor.addEventListener("input", updatePreview)
+
+        // updatePreview();
+    </script>
 {% endblock %}
