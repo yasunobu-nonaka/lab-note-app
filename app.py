@@ -41,6 +41,8 @@ def create_note():
     db.session.add(note)
     db.session.commit()
 
+    flash("ノートを作成しました。")
+
     return render_template("notes/created.html", note=note)
 
 
