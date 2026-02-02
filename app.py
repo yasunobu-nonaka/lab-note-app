@@ -91,14 +91,6 @@ def delete_note(note_id):
     return redirect("/notes")
 
 
-@app.route("/note")
-def note():
-    with open("markdowns/sample.md", "r") as f:
-        md_text = f.read()
-    html_text = md_to_html(md_text)
-    return render_template("note.html", markdown=html_text)
-
-
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
