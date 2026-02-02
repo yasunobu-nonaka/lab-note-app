@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}保存完了{% endblock %}
+
+{% block css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+{% endblock %}
+
+{% block content %}
+    <h2 class="text-xl font-bold mb-4">{{ note.title }}</h2>
+
+    <hr>
+
+    <div class="bg-white p-6 rounded shadow markdown-body">
+        {{ note.content_md }}
+    </div>
+
+    <hr>
+
+    <div class="flex items-center gap-6">
+        <a href="/notes/new">もう１件作成</a>
+        <a href="/notes">一覧を見る</a>
+    </div>
+{% endblock %}

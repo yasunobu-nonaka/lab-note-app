@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Lab Note App{% endblock %}</title>
+    
+    <!-- Tailwindcss -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- 共通CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- ページごとのCSS -->
+    {% block css %}{% endblock %}
 
     <!-- MathJax -->
     <script>
@@ -17,10 +25,37 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 </head>
-</head>
-<body>
-    <main>
-        {% block content %}{% endblock %}
+<body class="bg-gray-100 text-gray-900">
+    <header class="bg-white shadow">
+      <div class="max-w-4xl mx-auto px-4 py-3 flex items-center">
+        <a href="/notes" class="font-semibold text-lg">🧪 Lab Notes</a>
+        
+        <div class="ml-auto flex space-x-3">
+          <a href="/notes/new" class="text-sm">新規作成</a>
+          <a href="/notes" class="text-sm">ノート一覧</a>
+        </div>
+      </div>
+    </header>
+    <main class="max-w-4xl mx-auto px-4 py-6">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div 
+                class="
+                  px-4 py-5 mb-4 rounded
+                  {% if category == 'success' %} text-green-700 bg-green-100 {% endif %}
+                  {% if category == 'info' %} bg-blue-100 text-blue-700 {% endif %}
+                  {% if category == 'danger' %} text-red-700 bg-red-100 {% endif %}
+                  {% if category == 'warning' %} text-yellow-700 bg-yellow-100 {% endif %}
+                "
+              >
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
     </main>
 </body>
 </html>

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.title }}{% endblock %}
+
+{% block css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="flex items-center gap-4 mb-4">
+        <h1 class="text-xl font-bold">{{ note.title }}</h1>
+        <a href="/notes/{{ note.id }}/edit" class="text-blue-500">編集</a>
+        
+        <form method="post" action="/notes/{{ note.id }}/delete" style="display:inline;" onsubmit="return confirm('本当に削除しますか？');">
+            <button type="submit" class="text-red-400">削除</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <div class="bg-white p-6 rounded shadow markdown-body">
+        {{ html_text | safe }}
+    </div>
+
+    <hr>
+
+    <div class="flex items-center gap-4 pl-4 mt-4">
+        <div>
+            <a href="/notes/new">新規作成</a>
+        </div>
+        <div>
+            <a href="/notes">一覧へ戻る</a>
+        </div>
+    </div>
+{% endblock %}
+

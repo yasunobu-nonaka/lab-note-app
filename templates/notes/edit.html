@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}ノート編集{% endblock %}
+
+{% block content %}
+    <h1 class="text-xl mb-4">ノート編集</h1>
+
+    <form action="/notes/{{ note.id }}/update" method="post">
+        <div>
+            <input 
+                class="w-full bg-white border-1 border-solid px-1 py-2 mb-4"
+                type="text"
+                name="title"
+                value="{{ note.title }}"
+                required
+            >
+        </div>
+
+        <div>
+            <textarea
+            class="w-full bg-white border-1 border-solid px-1 py-2"
+            name="content_md"
+            rows="20"
+            >{{ note.content_md }}</textarea>
+        </div>
+
+        <button class="bg-white shadow p-2 rounded" type="submit">更新</button>
+    </form>
+
+    <br>
+
+    <a href="/notes/{{ note.id }}">キャンセル</a>
+{% endblock %}
+
