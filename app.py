@@ -41,7 +41,7 @@ def create_note():
     db.session.add(note)
     db.session.commit()
 
-    flash("ノートを作成しました。")
+    flash("ノートを作成しました。", "success")
 
     return render_template("notes/created.html", note=note)
 
@@ -74,7 +74,7 @@ def update_note(note_id):
 
     db.session.commit()
 
-    flash("ノートを更新しました。")
+    flash("ノートを更新しました。", "info")
 
     return redirect(f"/notes/{note.id}")
 
@@ -86,7 +86,7 @@ def delete_note(note_id):
     db.session.delete(note)
     db.session.commit()
 
-    flash("ノートを削除しました。")
+    flash("ノートを削除しました。", "danger")
 
     return redirect("/notes")
 
