@@ -50,30 +50,29 @@
     <!-- DOMPurify  -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
 
-    <!-- KaTeX -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-
-
     <script>
-        const editor = document.getElementById("editor")
-        const preview = document.getElementById("preview")
+        const editor = document.getElementById("editor");
+        const preview = document.getElementById("preview");
 
         marked.setOptions({
-            breaks: true
-        })
+            breaks: true,        // 改行を <br> に変換
+            headerIds: false,    // 見出しに自動IDを付けない
+            mangle: false        // メールアドレスの難読化をしない
+        });
 
         function renderMath() {
+            if (typeof renderMathInElement === "undefined") return;
+
             renderMathInElement(preview, {
-            delimiters: [
-                { left: "$$", right: "$$", display: true },
-                { left: "$", right: "$", display: false }
-            ]
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false }
+                ],
+                throwOnError: false
             });
         }
 
+        // ===== プレビュー更新 =====
         function updatePreview() {
             const markdown = editor.value;
             
@@ -83,13 +82,17 @@
             // HTMLをサニタイズ
             const cleanHtml = DOMPurify.sanitize(dirtyHtml);
             
+            // プレビューに反映
             preview.innerHTML = cleanHtml;
 
+            // 数式レンダリング
             renderMath();
         }
 
+        // 入力イベント
         editor.addEventListener("input", updatePreview)
 
+        // 初期表示
         updatePreview();
     </script>
 {% endblock %}
