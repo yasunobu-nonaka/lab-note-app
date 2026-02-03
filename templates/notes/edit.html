@@ -54,6 +54,9 @@
         let editor;
         let preview;
 
+        let isSyncingEditor = false;
+        let isSyncingPreview = false;
+
         // ===== marked 設定 ===== 
         marked.setOptions({
             breaks: true,
@@ -85,12 +88,46 @@
             renderMath();
         }
 
+        function syncEditorToPreview() {
+            if (isSyncingPreview) return;
+            
+            isSyncingEditor = true;
+
+            const editorMax = editor.scrollHeight - editor.clientHeight;
+            const previewMax = preview.scrollHeight - preview.clientHeight;
+
+            if (editorMax > 0 && previewMax > 0) {
+                const ratio = editor.scrollTop / editorMax;
+                preview.scrollTop = ratio * previewMax;
+            }
+
+            isSyncingEditor = false;
+        }
+
+        function syncPreviewToEditor() {
+            if (isSyncingEditor) return;
+            
+            isSyncingPreview = true;
+
+            const editorMax = editor.scrollHeight - editor.clientHeight;
+            const previewMax = preview.scrollHeight - preview.clientHeight;
+
+            if (editorMax > 0 && previewMax > 0) {
+                const ratio = preview.scrollTop / previewMax;
+                editor.scrollTop = ratio * editorMax;
+            }
+
+            isSyncingPreview = false;
+        }
+
         // ===== DOM & KaTeX が揃ってから初期化 =====
         document.addEventListener("DOMContentLoaded", () => {
             editor = document.getElementById("editor");
             preview = document.getElementById("preview");
 
             editor.addEventListener("input", updatePreview);
+            editor.addEventListener("scroll", syncEditorToPreview);
+            preview.addEventListener("scroll", syncPreviewToEditor);
 
             // 初期レンダリング（←ここが重要）
             updatePreview();
