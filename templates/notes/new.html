@@ -46,19 +46,46 @@
 {% endblock %}
 
 {% block javascript %}
+    <!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+
+    <!-- DOMPurify -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
+
     <script>
         const editor = document.getElementById("editor")
         const preview = document.getElementById("preview")
 
+        // ===== marked 設定 ===== 
+        marked.setOptions({
+            breaks: true,
+            headerIds: false,
+            mangle: false
+        });
+
+        // ===== 数式レンダリング =====
+        function renderMath() {
+            if (typeof renderMathInElement === "undefined") return;
+
+            renderMathInElement(preview, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false }
+            ],
+            throwOnError: false
+            });
+        }
+
         function updatePreview() {
             const markdown = editor.value;
-            const html = marked.parse(markdown);
-            preview.innerHTML = html;
+
+            const dirtyHtml = marked.parse(markdown);
+            const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+
+            preview.innerHTML = cleanHtml;
+            renderMath();
         }
 
         editor.addEventListener("input", updatePreview)
-
-        // updatePreview();
     </script>
 {% endblock %}
