@@ -2,6 +2,10 @@
 
 {% block title %}ノート編集{% endblock %}
 
+{% block css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+{% endblock %}
+
 {% block content %}
     <h1 class="text-xl mb-4">ノート編集</h1>
 
@@ -16,12 +20,19 @@
             >
         </div>
 
-        <div>
+        <div class="grid grid-cols-2 gap-4 h-[90vh] mb-2">
             <textarea
-            class="w-full bg-white border-1 border-solid px-1 py-2"
-            name="content_md"
-            rows="20"
-            >{{ note.content_md }}</textarea>
+                class="w-full h-full resize-none overflow-auto
+                bg-white font-mono border-1 border-solid px-1 py-2"
+                id="editor"
+                name="content_md"
+                rows="20"
+            >{{ note.content_md if note else '' }}</textarea>
+
+            <div
+                class="h-full overflow-auto rounded bg-white border p-4 markdown-body"
+                id="preview"
+            ></div>
         </div>
 
         <button class="bg-white shadow p-2 rounded" type="submit">更新</button>
@@ -30,5 +41,60 @@
     <br>
 
     <a href="/notes/{{ note.id }}">キャンセル</a>
+{% endblock %}
+
+{% block javascript %}
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+
+    <!-- DOMPurify -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
+
+    <script>
+        let editor;
+        let preview;
+
+        // ===== marked 設定 ===== 
+        marked.setOptions({
+            breaks: true,
+            headerIds: false,
+            mangle: false
+        });
+
+        // ===== 数式レンダリング =====
+        function renderMath() {
+            if (typeof renderMathInElement === "undefined") return;
+
+            renderMathInElement(preview, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false }
+            ],
+            throwOnError: false
+            });
+        }
+
+        // ===== プレビュー更新 =====
+        function updatePreview() {
+            const markdown = editor.value;
+
+            const dirtyHtml = marked.parse(markdown);
+            const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+
+            preview.innerHTML = cleanHtml;
+            renderMath();
+        }
+
+        // ===== DOM & KaTeX が揃ってから初期化 =====
+        document.addEventListener("DOMContentLoaded", () => {
+            editor = document.getElementById("editor");
+            preview = document.getElementById("preview");
+
+            editor.addEventListener("input", updatePreview);
+
+            // 初期レンダリング（←ここが重要）
+            updatePreview();
+        });
+    </script>
 {% endblock %}
 

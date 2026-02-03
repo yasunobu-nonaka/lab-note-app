@@ -41,9 +41,11 @@ def create_note():
     db.session.add(note)
     db.session.commit()
 
+    html_text = md_to_html(note.content_md)
+
     flash("ノートを作成しました。", "success")
 
-    return render_template("notes/created.html", note=note)
+    return render_template("notes/created.html", note=note, html_text=html_text)
 
 
 @app.route("/notes")
