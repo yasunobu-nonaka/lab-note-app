@@ -12,7 +12,7 @@
     <hr>
 
     <div class="bg-white p-6 rounded shadow markdown-body">
-        {{ note.content_md }}
+        {{ html_text | safe }}
     </div>
 
     <hr>
@@ -21,4 +21,20 @@
         <a href="/notes/new">もう１件作成</a>
         <a href="/notes">一覧を見る</a>
     </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof renderMathInElement === "undefined") return;
+
+            renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false }
+            ],
+            throwOnError: false
+            });
+        });
+    </script>
 {% endblock %}
