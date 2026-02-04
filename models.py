@@ -18,6 +18,9 @@ class User(UserMixin, db.Model):
 
     notes = db.relationship("Note", backref="user", lazy=True)
 
+    def __repr__(self):
+        return f"<User {self.username}>"
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -35,7 +38,10 @@ class Note(db.Model):
 
     title = db.Column(db.String(200), nullable=False)
     content_md = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=now_jst)
+    created_at = db.Column(db.DateTime, default=now_jst, index=True)
     updated_at = db.Column(
-        db.DateTime, default=now_jst, onupdate=now_jst
+        db.DateTime, default=now_jst, onupdate=now_jst, index=True
     )
+
+    def __repr__(self):
+        return f"<Note {self.id} user={self.user_id}>"
