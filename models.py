@@ -4,9 +4,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
 
 db = SQLAlchemy()
-
 jst = timezone(timedelta(hours=9))
-aware_jst_time = datetime.now(jst)
+
+def now_jst():
+    return datetime.now(jst)
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -26,7 +27,7 @@ class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content_md = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=aware_jst_time)
+    created_at = db.Column(db.DateTime, default=now_jst)
     updated_at = db.Column(
-        db.DateTime, default=aware_jst_time, onupdate=aware_jst_time
+        db.DateTime, default=now_jst, onupdate=now_jst
     )
