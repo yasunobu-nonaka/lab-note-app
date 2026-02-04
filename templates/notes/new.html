@@ -53,39 +53,76 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
 
     <script>
-        const editor = document.getElementById("editor")
-        const preview = document.getElementById("preview")
+      const editor = document.getElementById("editor")
+      const preview = document.getElementById("preview")
 
-        // ===== marked 設定 ===== 
-        marked.setOptions({
-            breaks: true,
-            headerIds: false,
-            mangle: false
-        });
+      let isSyncingEditor = false;
+      let isSyncingPreview = false;
 
-        // ===== 数式レンダリング =====
-        function renderMath() {
-            if (typeof renderMathInElement === "undefined") return;
+      // ===== marked 設定 ===== 
+      marked.setOptions({
+          breaks: true,
+          headerIds: false,
+          mangle: false
+      });
 
-            renderMathInElement(preview, {
-            delimiters: [
-                { left: "$$", right: "$$", display: true },
-                { left: "$", right: "$", display: false }
-            ],
-            throwOnError: false
-            });
-        }
+      // ===== 数式レンダリング =====
+      function renderMath() {
+          if (typeof renderMathInElement === "undefined") return;
 
-        function updatePreview() {
-            const markdown = editor.value;
+          renderMathInElement(preview, {
+          delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+          });
+      }
 
-            const dirtyHtml = marked.parse(markdown);
-            const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+      function updatePreview() {
+          const markdown = editor.value;
 
-            preview.innerHTML = cleanHtml;
-            renderMath();
-        }
+          const dirtyHtml = marked.parse(markdown);
+          const cleanHtml = DOMPurify.sanitize(dirtyHtml);
 
-        editor.addEventListener("input", updatePreview)
+          preview.innerHTML = cleanHtml;
+          renderMath();
+      }
+
+      function syncEditorToPreview() {
+          if (isSyncingPreview) return;
+          
+          isSyncingEditor = true;
+
+          const editorMax = editor.scrollHeight - editor.clientHeight;
+          const previewMax = preview.scrollHeight - preview.clientHeight;
+
+          if (editorMax > 0 && previewMax > 0) {
+              const ratio = editor.scrollTop / editorMax;
+              preview.scrollTop = ratio * previewMax;
+          }
+
+          isSyncingEditor = false;
+      }
+
+      function syncPreviewToEditor() {
+          if (isSyncingEditor) return;
+          
+          isSyncingPreview = true;
+
+          const editorMax = editor.scrollHeight - editor.clientHeight;
+          const previewMax = preview.scrollHeight - preview.clientHeight;
+
+          if (editorMax > 0 && previewMax > 0) {
+              const ratio = preview.scrollTop / previewMax;
+              editor.scrollTop = ratio * editorMax;
+          }
+
+          isSyncingPreview = false;
+      }
+
+      editor.addEventListener("input", updatePreview);
+      editor.addEventListener("scroll", syncEditorToPreview);
+      preview.addEventListener("scroll", syncPreviewToEditor);
     </script>
 {% endblock %}
