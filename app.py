@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user
 from models import db, User, Note
 from utils import md_to_html
 
@@ -22,6 +22,30 @@ def load_user(user_id):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/register")
+def register():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        # 既存ユーザー確認
+        if User.query.filter_by(username=username).first():
+            flash("そのユーザー名はすでに使われています。", "danger")
+            return redirect(url_for("register"))
+
+        user = User(username=username)
+        user.set_password(password)
+
+        db.session.add(user)
+        db.session.commit()
+
+        login_user(user)
+        flash("ユーザー登録が完了しました。", "success")
+        return redirect(url_for("notes")) # ノート一覧へ
+
+    return render_template("register.html")
 
 
 @app.route("/notes/new")
