@@ -9,3 +9,6 @@ mdit-py-plugins
 
 # CRUD
 Flask-SQLAlchemy
+
+# Login
+Flask-Login

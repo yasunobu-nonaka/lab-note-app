@@ -1,26 +1,23 @@
 from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from models import db, User, Note
 from utils import md_to_html
-from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
+db.init_app(app)
 
-jst = timezone(timedelta(hours=9))
-aware_jst_time = datetime.now(jst)
+login_manager = LoginManager()
+login_manager.login_view = "login"
+login_manager.init_app(app)
 
-class Note(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    content_md = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=aware_jst_time)
-    updated_at = db.Column(
-        db.DateTime, default=aware_jst_time, onupdate=aware_jst_time
-    )
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route("/")
 def index():
