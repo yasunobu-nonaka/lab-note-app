@@ -5,7 +5,7 @@ from models import db, User, Note
 from utils import md_to_html
 
 app = Flask(__name__)
-app.secret_key = "dev-secret-key"
+app.secret_key = "dev-secret-key" # TODO: os.environ.get()にする
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

@@ -16,6 +16,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
+    notes = db.relationship("Note", backref="user", lazy=True)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -25,6 +27,12 @@ class User(UserMixin, db.Model):
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
     title = db.Column(db.String(200), nullable=False)
     content_md = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=now_jst)
