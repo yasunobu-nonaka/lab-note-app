@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="w-full mx-auto max-w-md bg-white px-6 py-6">
+        <h2 class="text-xl mb-4">ユーザー登録</h2>
+        <form method="post" class="px-6 py-4 mb-4">
+            <div class="mb-4">
+                <label class="block">ユーザー名</label>
+                <input
+                    type="text"
+                    name="username"
+                    class="bg-white w-70 shadow border border-gray-300 p-2"
+                    required
+                >
+            </div>
+
+            <div class="mb-4">
+                <label class="block">パスワード</label>
+                <input
+                    type="password"
+                    name="password"
+                    class="bg-white w-70 shadow border border-gray-300 p-2"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="bg-white shadow border border-gray-200 p-2 rounded">登録</button>
+        </form>
+
+        <p>
+            すでにアカウントがありますか？
+            <a href="/">ログイン</a>
+        </p>
+    </div>
+{% endblock %}
