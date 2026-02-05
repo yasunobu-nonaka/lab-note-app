@@ -24,7 +24,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form["username"]
@@ -43,7 +43,7 @@ def register():
 
         login_user(user)
         flash("ユーザー登録が完了しました。", "success")
-        return redirect(url_for("notes")) # ノート一覧へ
+        return redirect("/notes") # ノート一覧へ
 
     return render_template("register.html")
 
