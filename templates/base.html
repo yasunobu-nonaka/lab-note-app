@@ -31,13 +31,14 @@
         {% if current_user.is_authenticated %}
           <div class="ml-auto flex space-x-5 items-center">
             <span class="font-bold">👤  {{ current_user.username }}</span>
-            <a href="/notes/new" class="text-sm">新規作成</a>
-            <a href="/notes" class="text-sm">ノート一覧</a>
-            <a href="/logout" class="text-sm text-red-500 hover:underline">ログアウト</a>
+            <a href="{{ url_for('new_note') }}" class="text-sm">新規作成</a>
+            <a href="{{ url_for('notes_index') }}" class="text-sm">ノート一覧</a>
+            <a href="{{ url_for('logout') }}" class="text-sm text-red-500 hover:underline">ログアウト</a>
           </div>
         {% else %}
-        <div class="ml-auto">
-          <a href="/login" class="text-sm">ログイン</a>
+        <div class="ml-auto flex space-x-5 items-center">
+          <a href="{{ url_for('login') }}" class="text-sm text-blue-600 hover:underline">ログイン</a>
+          <a href="{{ url_for('register') }}" class="text-sm text-blue-600 hover:underline">新規登録</a>
         </div>
         {% endif %}
       </div>
