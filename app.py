@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from urllib.parse import urlparse
 from models import db, User, Note
 from utils import md_to_html
 
@@ -60,7 +61,12 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash("ログインしました。", "success")
-            return redirect("/notes")
+
+            next_page = request.form.get("next")
+            if not next_page or urlparse(next_page).netloc != "":
+                next_page = url_for("notes_index")
+
+            return redirect(next_page)
         else:
             flash("ユーザー名またはパスワードが違います。", "danger")
 
