@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import db, User, Note
 from utils import md_to_html
 
@@ -20,6 +20,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 @app.route("/")
+@login_required
 def index():
     return render_template("index.html")
 
@@ -48,17 +49,46 @@ def register():
     return render_template("register.html")
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.check_password(password):
+            login_user(user)
+            flash("ログインしました。", "success")
+            return redirect("/notes")
+        else:
+            flash("ユーザー名またはパスワードが違います。", "danger")
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("ログアウトしました。", "info")
+    return redirect("/login")
+
+
 @app.route("/notes/new")
+@login_required
 def new_note():
     return render_template("notes/new.html")
 
 
 @app.route("/notes", methods=["POST"])
+@login_required
 def create_note():
+    user_id = current_user.id
     title = request.form["title"]
     content_md = request.form["content_md"]
 
-    note = Note(title=title, content_md=content_md)
+    note = Note(user_id=user_id, title=title, content_md=content_md)
     db.session.add(note)
     db.session.commit()
 
@@ -70,27 +100,40 @@ def create_note():
 
 
 @app.route("/notes")
+@login_required
 def notes_index():
-    notes = Note.query.order_by(Note.id.desc()).all()
+    notes = Note.query.filter_by(user_id=current_user.id).order_by(Note.updated_at.desc()).all()
     return render_template("notes/index.html", notes=notes)
 
 
 @app.route("/notes/<int:note_id>")
+@login_required
 def show_note(note_id):
-    note = Note.query.get_or_404(note_id)
+    note = Note.query.filter_by(
+        id=note_id,
+        user_id=current_user.id
+    ).first_or_404()
     html_text = md_to_html(note.content_md)
     return render_template("notes/show.html", note=note, html_text=html_text)
 
 
 @app.route("/notes/<int:note_id>/edit")
+@login_required
 def edit_note(note_id):
-    note = Note.query.get_or_404(note_id)
+    note = Note.query.filter_by(
+        id=note_id,
+        user_id=current_user.id
+    ).first_or_404()
     return render_template("notes/edit.html", note=note)
 
 
 @app.route("/notes/<int:note_id>/update", methods=["POST"])
+@login_required
 def update_note(note_id):
-    note = Note.query.get_or_404(note_id)
+    note = Note.query.filter_by(
+        id=note_id,
+        user_id=current_user.id
+    ).first_or_404()
 
     note.title = request.form["title"]
     note.content_md = request.form["content_md"]
@@ -103,8 +146,12 @@ def update_note(note_id):
 
 
 @app.route("/notes/<int:note_id>/delete", methods=["POST"])
+@login_required
 def delete_note(note_id):
-    note = Note.query.get_or_404(note_id)
+    note = Note.query.filter_by(
+        id=note_id,
+        user_id=current_user.id
+    ).first_or_404()
 
     db.session.delete(note)
     db.session.commit()
