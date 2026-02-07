@@ -9,7 +9,7 @@
 {% block content %}
     <h1 class="text-xl mb-4">ノート編集</h1>
 
-    <form action="/notes/{{ note.id }}/update" method="post">
+    <form action="{{ url_for('update_note', note_id=note.id) }}" method="post">
         <div>
             <input 
                 class="w-full bg-white border-1 border-solid px-1 py-2 mb-4"
@@ -40,7 +40,7 @@
 
     <br>
 
-    <a href="/notes/{{ note.id }}">キャンセル</a>
+    <a href="{{ url_for('show_note', note_id=note.id)}}">キャンセル</a>
 {% endblock %}
 
 {% block javascript %}

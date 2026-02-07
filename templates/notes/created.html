@@ -18,8 +18,8 @@
     <hr>
 
     <div class="flex items-center gap-6">
-        <a href="/notes/new">もう１件作成</a>
-        <a href="/notes">一覧を見る</a>
+        <a href="{{ url_for('new_note') }}">もう１件作成</a>
+        <a href="{{ url_for('notes_index') }}">一覧を見る</a>
     </div>
 {% endblock %}
 
