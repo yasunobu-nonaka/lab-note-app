@@ -34,9 +34,6 @@ def md_to_html(md_string):
         flags=re.IGNORECASE
     )
 
-    with open("outputs/raw_html.html", "w", encoding="utf-8") as f:
-        f.write(raw_html)
-
     allowed_tags = bleach.sanitizer.ALLOWED_TAGS.union({
         "h1", "h2", "h3", "h4", "h5", "h6",
         "p", "a", "img", "br", "hr",
@@ -66,8 +63,5 @@ def md_to_html(md_string):
         attributes=allowed_attrs,
         protocols=allowed_protocols,
     )
-
-    with open("outputs/sanitized_html.html", "w", encoding="utf-8") as f:
-        f.write(safe_html)
 
     return safe_html
