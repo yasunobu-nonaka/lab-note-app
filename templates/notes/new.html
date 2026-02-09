@@ -9,7 +9,7 @@
 {% block content %}
 <h1 class="text-xl mb-4">新規ノート作成</h1>
 
-<form action="{{ url_for('create_note') }}" method="post">
+<form action="{{ url_for('notes.create_note') }}" method="post">
   <div>
     <input
       class="w-full bg-white border-1 border-solid px-1 py-2 mb-4"
@@ -41,7 +41,7 @@
 
 <br>
 
-<a href="{{ url_for('notes_index') }}">一覧へ戻る</a>
+<a href="{{ url_for('notes.notes_index') }}">一覧へ戻る</a>
 
 {% endblock %}
 

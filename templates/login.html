@@ -5,7 +5,7 @@
 {% block content %}
     <div class="w-full mx-auto max-w-md bg-white px-6 py-6">
         <h2 class="text-2xl font-bold mb-4">ログイン</h2>
-        <form method="post" action="{{ url_for('login') }}" class="max-w-sm">
+        <form method="post" action="{{ url_for('auth.login') }}" class="max-w-sm">
             <div class="mb-4">
                 <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
                 
@@ -37,7 +37,7 @@
 
         <p class="text-sm text-center mt-4">
             アカウントをお持ちでないですか？
-            <a href="{{ url_for('register') }}" class="text-blue-600 hover:underline">
+            <a href="{{ url_for('auth.register') }}" class="text-blue-600 hover:underline">
             新規登録
             </a>
         </p>
