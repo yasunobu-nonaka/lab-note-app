@@ -1,8 +1,8 @@
 from flask import render_template, url_for, request, redirect, flash
 from flask_login import login_required, current_user
 
-from models import db, Note
-from utils import md_to_html
+from ..models import db, Note
+from ..utils import md_to_html
 from . import notes_bp
 
 

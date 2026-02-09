@@ -1,9 +1,9 @@
 from flask import Flask, render_template
 from flask_login import LoginManager, login_required
 
-from models import db, User
-from auth import auth_bp
-from notes import notes_bp
+from .models import db, User
+from .auth import auth_bp
+from .notes import notes_bp
 
 def create_app():
     app = Flask(__name__)
@@ -24,17 +24,9 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(notes_bp)
 
+    @app.route("/")
+    @login_required
+    def index():
+        return render_template("index.html")
+
     return app
-
-app = create_app()
-
-@app.route("/")
-@login_required
-def index():
-    return render_template("index.html")
-
-
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True, port=8000)
