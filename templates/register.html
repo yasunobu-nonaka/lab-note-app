@@ -3,7 +3,7 @@
 {% block content %}
     <div class="w-full mx-auto max-w-md bg-white px-6 py-6">
         <h2 class="text-xl mb-4">ユーザー登録</h2>
-        <form method="post" action="{{ url_for('register') }}" class="px-6 py-4 mb-4">
+        <form method="post" action="{{ url_for('auth.register') }}" class="px-6 py-4 mb-4">
             <div class="mb-4">
                 <label class="block">ユーザー名</label>
                 <input
@@ -29,7 +29,7 @@
 
         <p>
             すでにアカウントがありますか？
-            <a href="{{ url_for('login') }}">ログイン</a>
+            <a href="{{ url_for('auth.login') }}">ログイン</a>
         </p>
     </div>
 {% endblock %}

@@ -9,9 +9,9 @@
 {% block content %}
     <div class="flex items-center gap-4 mb-4">
         <h1 class="text-xl font-bold">{{ note.title }}</h1>
-        <a href="{{ url_for('edit_note', note_id=note.id) }}" class="text-blue-500">編集</a>
+        <a href="{{ url_for('notes.edit_note', note_id=note.id) }}" class="text-blue-500">編集</a>
         
-        <form method="post" action="{{ url_for('delete_note', note_id=note.id) }}" style="display:inline;" onsubmit="return confirm('本当に削除しますか？');">
+        <form method="post" action="{{ url_for('notes.delete_note', note_id=note.id) }}" style="display:inline;" onsubmit="return confirm('本当に削除しますか？');">
             <button type="submit" class="text-red-400">削除</button>
         </form>
     </div>
@@ -26,10 +26,10 @@
 
     <div class="flex items-center gap-4 pl-4 mt-4">
         <div>
-            <a href="{{ url_for('new_note') }}">新規作成</a>
+            <a href="{{ url_for('notes.new_note') }}">新規作成</a>
         </div>
         <div>
-            <a href="{{ url_for('notes_index') }}">一覧へ戻る</a>
+            <a href="{{ url_for('notes.notes_index') }}">一覧へ戻る</a>
         </div>
     </div>
 {% endblock %}
