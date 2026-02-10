@@ -1,17 +1,25 @@
-from flask import Flask, render_template
-from flask_login import LoginManager, login_required
+from flask import Flask
+from flask_login import LoginManager
+from flask_migrate import Migrate
+import os
 
 from .models import db, User
 from .auth import auth_bp
 from .notes import notes_bp
 
+migrate = Migrate()
+
 def create_app():
-    app = Flask(__name__)
-    app.secret_key = "dev-secret-key" # TODO: os.environ.get()にする
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.db"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app = Flask(__name__, instance_relative_config=True)
+
+    app.config.from_mapping(
+        SECRET_KEY=os.environ.get("SECRET_KEY", "fallback-secret"),
+        SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///notes.db"),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    )
 
     db.init_app(app)
+    migrate.init_app(app, db)
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
@@ -23,10 +31,5 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(notes_bp)
-
-    @app.route("/")
-    @login_required
-    def index():
-        return render_template("index.html")
 
     return app
