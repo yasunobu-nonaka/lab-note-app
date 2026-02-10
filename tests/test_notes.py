@@ -4,7 +4,7 @@ def test_login_required(client):
     assert "/login" in res.headers["location"]
 
 def register(client):
-    client.post(
+    res = client.post(
         "/register",
         data={
             "username": "testuser",
@@ -13,9 +13,11 @@ def register(client):
         follow_redirects=True,
     )
 
+    return res
+
 
 def login(client):
-    client.post(
+    res = client.post(
         "/login",
         data={
             "username": "testuser",
@@ -24,9 +26,26 @@ def login(client):
         follow_redirects=True,
     )
 
+    return res
+
 
 def test_notes_index(client):
     register(client)
     login(client)
     res = client.get("/notes/")
+    assert res.status_code == 200
+
+def test_note_creation(client):
+    register(client)
+    res = login(client)
+    assert res.status_code == 200
+
+    res = client.post(
+        "/notes",
+        data={
+            "title": "テストノート",
+            "content_md": "- 要素１\n- 要素２\n- 要素３",
+        },
+        follow_redirects=True,
+    )
     assert res.status_code == 200
