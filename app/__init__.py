@@ -1,5 +1,5 @@
-from flask import Flask, render_template
-from flask_login import LoginManager, login_required
+from flask import Flask
+from flask_login import LoginManager
 from flask_migrate import Migrate
 
 from .models import db, User
@@ -29,10 +29,5 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(notes_bp)
-
-    @app.route("/")
-    @login_required
-    def index():
-        return render_template("index.html")
 
     return app
