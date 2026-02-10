@@ -16,3 +16,6 @@ Flask-Login
 
 # Test
 pytest
+
+# environment variables
+python-dotenv
