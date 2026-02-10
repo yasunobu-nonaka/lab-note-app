@@ -47,7 +47,7 @@ def test_notes_index_shows_note(logged_in_client, app):
 
 def test_notes_index_does_not_show_others_notes(logged_in_client, app):
     with app.app_context():
-        user_a = User.query.first()
+        user_a = User.query.filter_by(username="testuser").first()
 
         user_b = User(username="testuser2")
         user_b.set_password("password21234")
@@ -75,3 +75,23 @@ def test_notes_index_does_not_show_others_notes(logged_in_client, app):
     assert "ユーザーA作成ノート" in html
     assert "ユーザーB作成ノート" not in html
 
+def test_cannot_accesss_others_note_detail(logged_in_client, app):
+    with app.app_context():
+        user_b = User(username="testuser2")
+        user_b.set_password("password21234")
+        db.session.add(user_b)
+        db.session.commit()
+
+        note_b = Note(
+            user_id=user_b.id,
+            title="ユーザーB作成ノート",
+            content_md="ユーザーBが作成したノート"
+        )
+        db.session.add(note_b)
+        db.session.commit()
+
+        note_b_id = note_b.id
+    
+    res = logged_in_client.get(f"/notes/{note_b_id}")
+
+    assert res.status_code in (403, 404)
