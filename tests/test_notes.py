@@ -3,30 +3,6 @@ def test_login_required(client):
     assert res.status_code == 302
     assert "/login" in res.headers["location"]
 
-def register(client):
-    res = client.post(
-        "/register",
-        data={
-            "username": "testuser",
-            "password": "password123",
-        },
-        follow_redirects=True,
-    )
-
-    return res
-
-def login(client):
-    res = client.post(
-        "/login",
-        data={
-            "username": "testuser",
-            "password": "password123",
-        },
-        follow_redirects=True,
-    )
-
-    return res
-
 def create_note(client):
     res = client.post(
         "/notes",
@@ -39,16 +15,10 @@ def create_note(client):
 
     return res
 
-def test_notes_index(client):
-    register(client)
-    login(client)
-    res = client.get("/notes/")
+def test_notes_index(logged_in_client):
+    res = logged_in_client.get("/notes/")
     assert res.status_code == 200
 
-def test_note_creation(client):
-    register(client)
-    res = login(client)
-    assert res.status_code == 200
-
-    res = create_note(client)
+def test_note_creation(logged_in_client):
+    res = create_note(logged_in_client)
     assert res.status_code == 200

@@ -22,3 +22,26 @@ def app():
 @pytest.fixture
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture
+def logged_in_client(client):
+    client.post(
+        "/register",
+        data={
+            "username": "testuser",
+            "password": "password123",
+        },
+        follow_redirects=True,
+    )
+    
+    client.post(
+        "/login",
+        data={
+            "username": "testuser",
+            "password": "password123",
+        },
+        follow_redirects=True,
+    )
+
+    return client
