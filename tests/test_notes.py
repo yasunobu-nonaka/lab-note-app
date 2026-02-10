@@ -1,3 +1,5 @@
+from app.models import db, User, Note
+
 def test_login_required(client):
     res = client.get("/notes/1")
     assert res.status_code == 302
@@ -22,3 +24,23 @@ def test_notes_index(logged_in_client):
 def test_note_creation(logged_in_client):
     res = create_note(logged_in_client)
     assert res.status_code == 200
+
+def test_notes_index_shows_note(logged_in_client, app):
+    with app.app_context():
+        user = User.query.first()
+
+        note = Note(
+            user_id=user.id,
+            title="テストノート",
+            content_md="ノートの内容"
+        )
+
+        db.session.add(note)
+        db.session.commit()
+
+    res = logged_in_client.get("/notes/")
+
+    html = res.data.decode("utf-8")
+
+    assert res.status_code == 200
+    assert "テストノート" in html
