@@ -33,7 +33,7 @@ def new_note():
 
         flash("ノートを作成しました。", "success")
 
-        return render_template("notes/created.html", note=note, html_text=html_text)
+        return redirect(url_for("notes.show_note", note_id=note.id))
 
     return render_template("notes/new.html", form=form)
 
