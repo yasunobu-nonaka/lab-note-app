@@ -6,14 +6,7 @@
         <form method="post" action="{{ url_for('auth.register') }}" class="px-6 py-4 mb-4">
             {{ form.csrf_token }}
             <div class="mb-4">
-                <!-- <label class="block">ユーザー名</label> -->
                 {{ form.username.label(class="block") }}
-                <!-- <input
-                    type="text"
-                    name="username"
-                    class="bg-white w-70 shadow border border-gray-300 p-2"
-                    required
-                > -->
                 {{ form.username(class="bg-white w-70 shadow border border-gray-300 p-2") }}
             </div>
 
@@ -26,14 +19,7 @@
             {% endif %}
 
             <div class="mb-4">
-                <!-- <label class="block">パスワード</label> -->
                 {{ form.password.label(class="block") }}
-                <!-- <input
-                    type="password"
-                    name="password"
-                    class="bg-white w-70 shadow border border-gray-300 p-2"
-                    required
-                > -->
                 {{ form.password(class="bg-white w-70 shadow border border-gray-300 p-2") }}
             </div>
 
@@ -58,7 +44,6 @@
                 </ul>
             {% endif %}
 
-            <!-- <button type="submit" class="bg-white shadow border border-gray-200 p-2 rounded">登録</button> -->
             {{ form.submit(class="bg-white shadow border border-gray-200 p-2 rounded") }}
         </form>
 
