@@ -24,3 +24,20 @@ class RegistrationForm(FlaskForm):
             ]
         )
     submit = SubmitField('登録')
+
+
+class LoginForm(FlaskForm):
+    username = StringField(
+        'Username',
+        validators=[
+            DataRequired(message="ユーザー名は必須です")
+        ]
+    )
+    password = PasswordField(
+        'Password',
+        validators=[
+            DataRequired(message='パスワードは必須です'),
+        ]
+    )
+    submit = SubmitField('ログイン')
+    

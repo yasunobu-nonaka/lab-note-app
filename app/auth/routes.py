@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from ..models import db, User
 from . import auth_bp
 
-from ..forms.auth import RegistrationForm
+from ..forms.auth import RegistrationForm, LoginForm
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
@@ -35,9 +35,11 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
 
         user = User.query.filter_by(username=username).first()
 
@@ -53,7 +55,7 @@ def login():
         else:
             flash("ユーザー名またはパスワードが違います。", "danger")
 
-    return render_template("login.html")
+    return render_template("login.html", form=form)
 
 
 @auth_bp.route("/logout")
