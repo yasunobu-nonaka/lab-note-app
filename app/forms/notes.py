@@ -1,12 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 
 class NewNoteForm(FlaskForm):
     title = StringField(
         'タイトル',
         validators=[
-            DataRequired(message="タイトルは必須です")
+            DataRequired(message="タイトルは必須です"),
+            Length(max=200, message="タイトルは200文字以内で入力してください")
         ],
         render_kw={
             "placeholder": "実験タイトル"

@@ -6,14 +6,15 @@ class RegistrationForm(FlaskForm):
     username = StringField(
             'Username', 
             validators=[
-                DataRequired(message='ユーザー名は必須です')
+                DataRequired(message='ユーザー名は必須です'),
+                Length(max=100, message="ユーザー名は100文字以内で入力してください")
             ]
         )
     password = PasswordField(
             'Password', 
             validators=[
                 DataRequired(message='パスワードは必須です'),
-                Length(min=12, max=64, message='パスワードは12文字以上以下で入力してください')
+                Length(min=12, max=64, message='パスワードは12文字以上64字以下で入力してください')
             ]
         )
     confirm = PasswordField(
