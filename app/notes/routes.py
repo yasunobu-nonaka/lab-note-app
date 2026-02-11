@@ -5,7 +5,7 @@ from ..models import db, Note
 from ..utils import md_to_html
 from . import notes_bp
 
-from ..forms.notes import NewNoteForm
+from ..forms.notes import NewNoteForm, EditNoteForm
 
 
 @notes_bp.route("/")
@@ -48,32 +48,25 @@ def show_note(note_id):
     return render_template("notes/show.html", note=note, html_text=html_text)
 
 
-@notes_bp.route("/<int:note_id>/edit")
+@notes_bp.route("/<int:note_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_note(note_id):
     note = Note.query.filter_by(
         id=note_id,
         user_id=current_user.id
     ).first_or_404()
-    return render_template("notes/edit.html", note=note)
 
+    form = EditNoteForm(obj=note)
 
-@notes_bp.route("/<int:note_id>/update", methods=["POST"])
-@login_required
-def update_note(note_id):
-    note = Note.query.filter_by(
-        id=note_id,
-        user_id=current_user.id
-    ).first_or_404()
+    if form.validate_on_submit():
+        form.populate_obj(note) # フォームの値をモデルへ反映する
+        
+        db.session.commit()
+        flash("ノートを更新しました。", "info")
 
-    note.title = request.form["title"]
-    note.content_md = request.form["content_md"]
+        return redirect(url_for('notes.show_note', note_id=note.id))        
 
-    db.session.commit()
-
-    flash("ノートを更新しました。", "info")
-
-    return redirect(url_for('notes.show_note', note_id=note.id))
+    return render_template("notes/edit.html", note=note, form=form)
 
 
 @notes_bp.route("/<int:note_id>/delete", methods=["POST"])
