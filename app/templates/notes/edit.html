@@ -10,7 +10,7 @@
     <h1 class="text-xl mb-4">ノート編集</h1>
 
     <form action="{{ url_for('notes.edit_note', note_id=note.id) }}" method="post">
-        {{ form.csrf_token() }}
+        {{ form.csrf_token }}
         <div class="mb-4">
             {{ form.title.label(class="block text-lg") }}
             {{ form.title(
