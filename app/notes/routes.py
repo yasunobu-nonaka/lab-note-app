@@ -37,6 +37,7 @@ def new_note():
 
     return render_template("notes/new.html", form=form)
 
+
 @notes_bp.route("/<int:note_id>")
 @login_required
 def show_note(note_id):
