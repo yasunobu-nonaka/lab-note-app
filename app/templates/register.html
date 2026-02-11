@@ -4,27 +4,62 @@
     <div class="w-full mx-auto max-w-md bg-white px-6 py-6">
         <h2 class="text-xl mb-4">ユーザー登録</h2>
         <form method="post" action="{{ url_for('auth.register') }}" class="px-6 py-4 mb-4">
+            {{ form.csrf_token }}
             <div class="mb-4">
-                <label class="block">ユーザー名</label>
-                <input
+                <!-- <label class="block">ユーザー名</label> -->
+                {{ form.username.label(class="block") }}
+                <!-- <input
                     type="text"
                     name="username"
                     class="bg-white w-70 shadow border border-gray-300 p-2"
                     required
-                >
+                > -->
+                {{ form.username(class="bg-white w-70 shadow border border-gray-300 p-2") }}
             </div>
 
+            {% if form.username.errors %}
+                <ul class="errors">
+                    {% for error in form.username.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
             <div class="mb-4">
-                <label class="block">パスワード</label>
-                <input
+                <!-- <label class="block">パスワード</label> -->
+                {{ form.password.label(class="block") }}
+                <!-- <input
                     type="password"
                     name="password"
                     class="bg-white w-70 shadow border border-gray-300 p-2"
                     required
-                >
+                > -->
+                {{ form.password(class="bg-white w-70 shadow border border-gray-300 p-2") }}
             </div>
 
-            <button type="submit" class="bg-white shadow border border-gray-200 p-2 rounded">登録</button>
+            {% if form.password.errors %}
+                <ul class="errors">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="mb-4">
+                {{ form.confirm.label(class="block") }}
+                {{ form.confirm(class="bg-white w-70 shadow border border-gray-300 p-2") }}
+            </div>
+
+            {% if form.confirm.errors %}
+                <ul class="errors">
+                    {% for error in form.confirm.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <!-- <button type="submit" class="bg-white shadow border border-gray-200 p-2 rounded">登録</button> -->
+            {{ form.submit(class="bg-white shadow border border-gray-200 p-2 rounded") }}
         </form>
 
         <p>
