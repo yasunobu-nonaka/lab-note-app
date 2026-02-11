@@ -9,34 +9,30 @@
 {% block content %}
 <h1 class="text-xl mb-4">新規ノート作成</h1>
 
-<form action="{{ url_for('notes.create_note') }}" method="post">
+<form action="{{ url_for('notes.new_note') }}" method="post">
+  {{ form.csrf_token }}
+  <div class="mb-4">
+    {{ form.title.label(class="block text-lg") }}
+    {{ form.title(
+      class="w-full bg-white border-1 border-solid px-1 py-2"
+    )}}
+  </div>
+
   <div>
-    <input
-      class="w-full bg-white border-1 border-solid px-1 py-2 mb-4"
-      type="text"
-      name="title"
-      placeholder="実験タイトル"
-      required="required"
-    />
+    {{ form.content_md.label(class="block text-lg") }}
+    <div class="grid grid-cols-2 gap-4 h-[90vh] mb-2">
+      {{ form.content_md(
+        class="w-full h-full resize-none overflow-auto
+        bg-white font-mono border-1 border-solid px-1 py-2"
+      )}}
+      <div
+        class="h-full overflow-auto rounded bg-white border p-4 markdown-body"
+        id="preview"
+      ></div>
+    </div>
   </div>
 
-  <div class="grid grid-cols-2 gap-4 h-[90vh] mb-2">
-    <textarea
-      class="w-full h-[90vh] resize-none overflow-auto
-      bg-white font-mono border-1 border-solid px-1 py-2"
-      id="editor"
-      name="content_md"
-      rows="20"
-      placeholder="Markdownで実験内容を記述してください"
-    ></textarea>
-
-    <div
-      class="h-full overflow-auto rounded bg-white border p-4 markdown-body"
-      id="preview"
-    ></div>
-  </div>
-
-  <button class="bg-white shadow p-2 rounded" type="submit">保存</button>
+  {{form.submit(class="bg-white shadow p-2 rounded")}}
 </form>
 
 <br>
@@ -53,7 +49,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
 
     <script>
-      const editor = document.getElementById("editor")
+      const content_md = document.getElementById("content_md")
       const preview = document.getElementById("preview")
 
       let isSyncingEditor = false;
@@ -80,7 +76,7 @@
       }
 
       function updatePreview() {
-          const markdown = editor.value;
+          const markdown = content_md.value;
 
           const dirtyHtml = marked.parse(markdown);
           const cleanHtml = DOMPurify.sanitize(dirtyHtml);
@@ -94,11 +90,11 @@
           
           isSyncingEditor = true;
 
-          const editorMax = editor.scrollHeight - editor.clientHeight;
+          const editorMax = content_md.scrollHeight - content_md.clientHeight;
           const previewMax = preview.scrollHeight - preview.clientHeight;
 
           if (editorMax > 0 && previewMax > 0) {
-              const ratio = editor.scrollTop / editorMax;
+              const ratio = content_md.scrollTop / editorMax;
               preview.scrollTop = ratio * previewMax;
           }
 
@@ -110,19 +106,19 @@
           
           isSyncingPreview = true;
 
-          const editorMax = editor.scrollHeight - editor.clientHeight;
+          const editorMax = content_md.scrollHeight - content_md.clientHeight;
           const previewMax = preview.scrollHeight - preview.clientHeight;
 
           if (editorMax > 0 && previewMax > 0) {
               const ratio = preview.scrollTop / previewMax;
-              editor.scrollTop = ratio * editorMax;
+              content_md.scrollTop = ratio * editorMax;
           }
 
           isSyncingPreview = false;
       }
 
-      editor.addEventListener("input", updatePreview);
-      editor.addEventListener("scroll", syncEditorToPreview);
+      content_md.addEventListener("input", updatePreview);
+      content_md.addEventListener("scroll", syncEditorToPreview);
       preview.addEventListener("scroll", syncPreviewToEditor);
     </script>
 {% endblock %}

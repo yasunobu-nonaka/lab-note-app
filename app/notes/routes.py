@@ -5,6 +5,8 @@ from ..models import db, Note
 from ..utils import md_to_html
 from . import notes_bp
 
+from ..forms.notes import NewNoteForm
+
 
 @notes_bp.route("/")
 @login_required
@@ -13,29 +15,27 @@ def notes_index():
     return render_template("notes/index.html", notes=notes)
 
 
-@notes_bp.route("/new")
+@notes_bp.route("/new", methods=["GET", "POST"])
 @login_required
 def new_note():
-    return render_template("notes/new.html")
+    form = NewNoteForm()
 
+    if form.validate_on_submit():
+        user_id = current_user.id
+        title = form.title.data
+        content_md = form.content_md.data
 
-@notes_bp.route("/", methods=["POST"])
-@login_required
-def create_note():
-    user_id = current_user.id
-    title = request.form["title"]
-    content_md = request.form["content_md"]
+        note = Note(user_id=user_id, title=title, content_md=content_md)
+        db.session.add(note)
+        db.session.commit()
 
-    note = Note(user_id=user_id, title=title, content_md=content_md)
-    db.session.add(note)
-    db.session.commit()
+        html_text = md_to_html(note.content_md)
 
-    html_text = md_to_html(note.content_md)
+        flash("ノートを作成しました。", "success")
 
-    flash("ノートを作成しました。", "success")
+        return render_template("notes/created.html", note=note, html_text=html_text)
 
-    return render_template("notes/created.html", note=note, html_text=html_text)
-
+    return render_template("notes/new.html", form=form)
 
 @notes_bp.route("/<int:note_id>")
 @login_required
