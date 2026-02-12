@@ -16,6 +16,12 @@
     {{ form.title(
       class="w-full bg-white border-1 border-solid px-1 py-2"
     ) }}
+
+    {% if form.title.errors %}
+      {% for error in form.title.errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    {% endif %}
   </div>
 
   <div>
@@ -30,6 +36,11 @@
         id="preview"
       ></div>
     </div>
+    {% if form.content_md.errors %}
+      {% for error in form.content_md.errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    {% endif %}
   </div>
 
   {{form.submit(class="bg-white shadow p-2 rounded")}}
