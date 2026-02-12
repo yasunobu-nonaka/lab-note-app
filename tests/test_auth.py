@@ -17,6 +17,23 @@ def test_register(client, app):
         user = User.query.filter_by(username="lion").first()
         assert user is not None
 
+def test_short_password_rejected(client, app):
+    res = client.post(
+        "/register",
+        data={
+            "username": "lion",
+            "password": "lion1234",
+            "confirm": "lion1234",
+        },
+        follow_redirects=True,
+    )
+
+    assert res.status_code == 200
+    
+    with app.app_context():
+        user = User.query.filter_by(username="lion").first()
+        assert user is None
+
 def test_login(client):
     client.post(
         "/register",
