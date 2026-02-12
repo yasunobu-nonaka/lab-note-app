@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 import os
 
 from .models import db, User
@@ -8,6 +9,7 @@ from .auth import auth_bp
 from .notes import notes_bp
 
 migrate = Migrate()
+csrf = CSRFProtect()
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -20,6 +22,7 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    csrf.init_app(app)
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
