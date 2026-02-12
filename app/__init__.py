@@ -20,13 +20,14 @@ def create_app(config_name="local"):
             SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:",
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
             TESTING=True,
-            WTFS_CSRF_ENABLED=False
+            WTF_CSRF_ENABLED=False
         )
     else:    
         app.config.from_mapping(
             SECRET_KEY=os.environ.get("SECRET_KEY", "fallback-secret"),
             SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///notes.db"),
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
+            WTF_CSRF_SECRET_KEY = os.environ.get("WTF_CSRF_SECRET_KEY", "fallback-secret")
         )
 
     db.init_app(app)
