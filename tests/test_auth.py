@@ -50,7 +50,7 @@ def test_duplicate_username_register_rejected(client, app):
         assert len(users) == 1
 
 
-def test_login(client, app):
+def test_login(client):
     register_user(client, "shakesan", "oishishake1234", "oishishake1234")
 
     res = client.post(
