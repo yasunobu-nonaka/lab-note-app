@@ -11,14 +11,23 @@ from .notes import notes_bp
 migrate = Migrate()
 csrf = CSRFProtect()
 
-def create_app():
+def create_app(config_name="local"):
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config.from_mapping(
-        SECRET_KEY=os.environ.get("SECRET_KEY", "fallback-secret"),
-        SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///notes.db"),
-        SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    )
+    if config_name == "testing":
+        app.config.from_mapping(
+            SECRET_KEY="test-secret",
+            SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:",
+            SQLALCHEMY_TRACK_MODIFICATIONS=False,
+            TESTING=True,
+            WTFS_CSRF_ENABLED=False
+        )
+    else:    
+        app.config.from_mapping(
+            SECRET_KEY=os.environ.get("SECRET_KEY", "fallback-secret"),
+            SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///notes.db"),
+            SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        )
 
     db.init_app(app)
     migrate.init_app(app, db)
