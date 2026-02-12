@@ -1,38 +1,43 @@
 from app.models import User
 
-def test_register(client, app):
+def register_user(client, username, password, confirm):
     res = client.post(
         "/register",
         data={
-            "username": "lion",
-            "password": "lion12345678",
-            "confirm": "lion12345678",
+            "username": username,
+            "password": password,
+            "confirm": confirm,
         },
         follow_redirects=True,
     )
+    
+    return res
 
+def test_register(client, app):
+    res = register_user(client, "lion", "lion12345678", "lion12345678")
     assert res.status_code == 200
     
     with app.app_context():
         user = User.query.filter_by(username="lion").first()
         assert user is not None
 
-def test_short_password_rejected(client, app):
-    res = client.post(
-        "/register",
-        data={
-            "username": "lion",
-            "password": "lion1234",
-            "confirm": "lion1234",
-        },
-        follow_redirects=True,
-    )
 
+def test_short_password_rejected(client, app):
+    res = register_user(client, "lion", "lion1234", "lion1234")
     assert res.status_code == 200
     
     with app.app_context():
         user = User.query.filter_by(username="lion").first()
         assert user is None
+
+def test_no_confirm_rejected(client, app):
+    res = register_user(client, "lion", "lion1234", "")
+    assert res.status_code == 200
+    
+    with app.app_context():
+        user = User.query.filter_by(username="lion").first()
+        assert user is None
+
 
 def test_login(client):
     client.post(
