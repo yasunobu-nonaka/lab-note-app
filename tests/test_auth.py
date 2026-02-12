@@ -39,15 +39,19 @@ def test_no_confirm_rejected(client, app):
         assert user is None
 
 
-def test_login(client):
-    client.post(
-        "/register",
-        data={
-            "username": "newshake",
-            "password": "newshake1234",
-        },
-        follow_redirects=True,
-    )
+def test_duplicate_username_rejected(client, app):
+    test_register(client, app)
+
+    res = register_user(client, "lion", "password1234", "password1234")
+    assert res.status_code == 200
+
+    with app.app_context():
+        users = User.query.filter_by(username="lion").all()
+        assert len(users) == 1
+
+
+def test_login(client, app):
+    register_user(client, "newshake", "newshake1234", "newshake1234")
 
     res = client.post(
         "/login",
