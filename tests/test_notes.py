@@ -15,7 +15,7 @@ def request_note_creation(client, title, content_md):
 
 
 #############################################
-# tests
+# tests for authorization
 #############################################
 
 
@@ -30,6 +30,11 @@ def test_notes_index(logged_in_client):
     assert res.status_code == 200
     assert "ノート一覧" in res.text
     assert "まだノートがありません。" in res.text
+
+
+#############################################
+# tests for note creation
+#############################################
 
 
 def test_note_creation(logged_in_client):
@@ -53,6 +58,19 @@ def test_no_title_note_creation_rejected(logged_in_client):
     assert res.request.path == "/notes/new"
 
 
+def test_too_long_title_note_creation_rejected(logged_in_client):
+    res = request_note_creation(
+        logged_in_client,
+        "note_title" * 20 + "1",
+        "- 要素１\n- 要素２\n- 要素３",
+    )
+    assert len(res.history) == 0
+    assert res.status_code == 200
+    assert "タイトルは200文字以内で入力してください" in res.text
+    assert "新規ノート作成" in res.text
+    assert res.request.path == "/notes/new"
+
+
 def test_notes_index_shows_note(logged_in_client, app):
     with app.app_context():
         user = User.query.first()
@@ -68,6 +86,11 @@ def test_notes_index_shows_note(logged_in_client, app):
 
     assert res.status_code == 200
     assert "テストノート" in res.text
+
+
+#############################################
+# test for note authorization
+#############################################
 
 
 def test_notes_index_does_not_show_others_notes(logged_in_client, app):
