@@ -25,6 +25,7 @@ def logged_in_client(client):
         data={
             "username": "testuser",
             "password": "password123",
+            "confirm": "password123",
         },
         follow_redirects=True,
     )
