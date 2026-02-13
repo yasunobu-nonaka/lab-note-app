@@ -5,7 +5,7 @@ def test_login_required(client):
     assert res.status_code == 302
     assert "/login" in res.headers["location"]
 
-def create_note(client):
+def request_note_creation(client):
     res = client.post(
         "/notes/new",
         data={
@@ -22,7 +22,7 @@ def test_notes_index(logged_in_client):
     assert res.status_code == 200
 
 def test_note_creation(logged_in_client):
-    res = create_note(logged_in_client)
+    res = request_note_creation(logged_in_client)
     assert res.status_code == 200
 
 def test_notes_index_shows_note(logged_in_client, app):
