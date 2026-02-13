@@ -131,3 +131,14 @@ def test_logout(client, app):
 
     with client.session_transaction() as session:
         assert "_user_id" not in session
+
+
+def test_logout_requires_login(client):
+    res = client.get("/logout", follow_redirects=True)
+
+    # redirectが1回発生
+    assert len(res.history) == 1
+
+    # loginページが表示される
+    assert "ログイン" in res.text
+
