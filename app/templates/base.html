@@ -1,69 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Lab Note App{% endblock %}</title>
-    
+
     <!-- Tailwindcss -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <!-- 共通CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 
     <!-- ページごとのCSS -->
     {% block css %}{% endblock %}
 
     <!-- KaTeX -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
 
-    <script defer
-            src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer
-            src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-</head>
-<body class="bg-gray-100 text-gray-900">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    ></script>
+  </head>
+  <body class="bg-gray-100 text-gray-900">
     <header class="bg-white shadow">
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center">
         <a href="/notes" class="font-semibold text-lg">🧪 Lab Notes</a>
-        
+
         {% if current_user.is_authenticated %}
           <div class="ml-auto flex space-x-5 items-center">
-            <span class="font-bold">👤  {{ current_user.username }}</span>
+            <span class="font-bold">👤 {{ current_user.username }}</span>
             <a href="{{ url_for('notes.new_note') }}" class="text-sm">新規作成</a>
             <a href="{{ url_for('notes.notes_index') }}" class="text-sm">ノート一覧</a>
-            <a href="{{ url_for('auth.logout') }}" class="text-sm text-red-500 hover:underline">ログアウト</a>
+            <a href="{{ url_for('auth.logout') }}" class="text-sm text-red-500 hover:underline">
+              ログアウト
+            </a>
           </div>
         {% else %}
-        <div class="ml-auto flex space-x-5 items-center">
-          <a href="{{ url_for('auth.login') }}" class="text-sm text-blue-600 hover:underline">ログイン</a>
-          <a href="{{ url_for('auth.register') }}" class="text-sm text-blue-600 hover:underline">新規登録</a>
-        </div>
+          <div class="ml-auto flex space-x-5 items-center">
+            <a href="{{ url_for('auth.login') }}" class="text-sm text-blue-600 hover:underline">
+              ログイン
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="text-sm text-blue-600 hover:underline">
+              新規登録
+            </a>
+          </div>
         {% endif %}
       </div>
     </header>
     <main class="max-w-6xl mx-auto px-4 py-6">
       {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div 
-                class="
+        {% if messages %}
+          {% for category, message in messages %}
+            <div
+              class="
                   px-4 py-5 mb-4 rounded
-                  {% if category == 'success' %} text-green-700 bg-green-100 {% endif %}
-                  {% if category == 'info' %} bg-blue-100 text-blue-700 {% endif %}
-                  {% if category == 'danger' %} text-red-700 bg-red-100 {% endif %}
-                  {% if category == 'warning' %} text-yellow-700 bg-yellow-100 {% endif %}
+                  {% if category == 'success' %}text-green-700 bg-green-100{% endif %}
+                  {% if category == 'info' %}bg-blue-100 text-blue-700{% endif %}
+                  {% if category == 'danger' %}text-red-700 bg-red-100{% endif %}
+                  {% if category == 'warning' %}text-yellow-700 bg-yellow-100{% endif %}
                 "
-              >
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
+            >
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
       {% endwith %}
 
-      {% block content %}{% endblock %}
+      {% block content %}
+      {% endblock %}
     </main>
     {% block javascript %}{% endblock %}
-</body>
+  </body>
 </html>

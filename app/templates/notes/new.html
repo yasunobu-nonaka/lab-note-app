@@ -3,141 +3,140 @@
 {% block title %}新規ノート{% endblock %}
 
 {% block css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}" />
 {% endblock %}
 
 {% block content %}
-    <h1 class="text-xl mb-4">新規ノート作成</h1>
+  <h1 class="text-xl mb-4">新規ノート作成</h1>
 
-    <form
-        action="{{ url_for('notes.new_note') }}"
-        method="post"
-        novalidate
-    >
-        {{ form.csrf_token }}
-        <div class="mb-4">
-            {{ form.title.label(class="block text-lg") }}
-            {{ form.title(
-                class="w-full bg-white border-1 border-solid px-1 py-2"
-            ) }}
+  <form action="{{ url_for('notes.new_note') }}" method="post" novalidate>
+    {{ form.csrf_token }}
+    <div class="mb-4">
+      {{ form.title.label(class="block text-lg") }}
+      {{
+        form.title(
+            class="w-full bg-white border-1 border-solid px-1 py-2"
+        )
+      }}
 
-            {% if form.title.errors %}
-                <ul class="errors text-red-500">
-                    {% for error in form.title.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
+      {% if form.title.errors %}
+        <ul class="errors text-red-500">
+          {% for error in form.title.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
 
-        <div>
-            {{ form.content_md.label(class="block text-lg") }}
-            <div class="grid grid-cols-2 gap-4 h-[90vh] mb-2">
-                {{ form.content_md(
-                    class="w-full h-full resize-none overflow-auto
-                    bg-white font-mono border-1 border-solid px-1 py-2"
-                ) }}
-                <div
-                    class="h-full overflow-auto rounded bg-white border p-4 markdown-body"
-                    id="preview"
-                ></div>
-            </div>
-            {% if form.content_md.errors %}
-                <ul class="errors text-red-500">
-                    {% for error in form.content_md.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
+    <div>
+      {{ form.content_md.label(class="block text-lg") }}
+      <div class="grid grid-cols-2 gap-4 h-[90vh] mb-2">
+        {{
+          form.content_md(
+              class="w-full h-full resize-none overflow-auto
+              bg-white font-mono border-1 border-solid px-1 py-2"
+          )
+        }}
+        <div
+          class="h-full overflow-auto rounded bg-white border p-4 markdown-body"
+          id="preview"
+        ></div>
+      </div>
+      {% if form.content_md.errors %}
+        <ul class="errors text-red-500">
+          {% for error in form.content_md.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
 
-        {{form.submit(class="bg-white shadow p-2 rounded")}}
-    </form>
+    {{ form.submit(class="bg-white shadow p-2 rounded") }}
+  </form>
 
-    <br>
+  <br />
 
-    <a href="{{ url_for('notes.notes_index') }}">一覧へ戻る</a>
-
+  <a href="{{ url_for('notes.notes_index') }}">一覧へ戻る</a>
 {% endblock %}
 
 {% block javascript %}
-    <!-- Marked.js -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+  <!-- Marked.js -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
 
-    <!-- DOMPurify -->
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
+  <!-- DOMPurify -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
 
-    <script>
-        const content_md = document.getElementById("content_md")
-        const preview = document.getElementById("preview")
+  <script>
+    const content_md = document.getElementById("content_md");
+    const preview = document.getElementById("preview");
 
-        let isSyncingEditor = false;
-        let isSyncingPreview = false;
+    let isSyncingEditor = false;
+    let isSyncingPreview = false;
 
-        // ===== marked 設定 ===== 
-        marked.setOptions({
-            breaks: true,
-            headerIds: false,
-            mangle: false
-        });
+    // ===== marked 設定 =====
+    marked.setOptions({
+      breaks: true,
+      headerIds: false,
+      mangle: false,
+    });
 
-        // ===== 数式レンダリング =====
-        function renderMath() {
-            if (typeof renderMathInElement === "undefined") return;
+    // ===== 数式レンダリング =====
+    function renderMath() {
+      if (typeof renderMathInElement === "undefined") return;
 
-            renderMathInElement(preview, {
-            delimiters: [
-                { left: "$$", right: "$$", display: true },
-                { left: "$", right: "$", display: false }
-            ],
-            throwOnError: false
-            });
-        }
+      renderMathInElement(preview, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+        ],
+        throwOnError: false,
+      });
+    }
 
-        function updatePreview() {
-            const markdown = content_md.value;
+    function updatePreview() {
+      const markdown = content_md.value;
 
-            const dirtyHtml = marked.parse(markdown);
-            const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+      const dirtyHtml = marked.parse(markdown);
+      const cleanHtml = DOMPurify.sanitize(dirtyHtml);
 
-            preview.innerHTML = cleanHtml;
-            renderMath();
-        }
+      preview.innerHTML = cleanHtml;
+      renderMath();
+    }
 
-        function syncEditorToPreview() {
-            if (isSyncingPreview) return;
-            
-            isSyncingEditor = true;
+    function syncEditorToPreview() {
+      if (isSyncingPreview) return;
 
-            const editorMax = content_md.scrollHeight - content_md.clientHeight;
-            const previewMax = preview.scrollHeight - preview.clientHeight;
+      isSyncingEditor = true;
 
-            if (editorMax > 0 && previewMax > 0) {
-                const ratio = content_md.scrollTop / editorMax;
-                preview.scrollTop = ratio * previewMax;
-            }
+      const editorMax = content_md.scrollHeight - content_md.clientHeight;
+      const previewMax = preview.scrollHeight - preview.clientHeight;
 
-            isSyncingEditor = false;
-        }
+      if (editorMax > 0 && previewMax > 0) {
+        const ratio = content_md.scrollTop / editorMax;
+        preview.scrollTop = ratio * previewMax;
+      }
 
-        function syncPreviewToEditor() {
-            if (isSyncingEditor) return;
-            
-            isSyncingPreview = true;
+      isSyncingEditor = false;
+    }
 
-            const editorMax = content_md.scrollHeight - content_md.clientHeight;
-            const previewMax = preview.scrollHeight - preview.clientHeight;
+    function syncPreviewToEditor() {
+      if (isSyncingEditor) return;
 
-            if (editorMax > 0 && previewMax > 0) {
-                const ratio = preview.scrollTop / previewMax;
-                content_md.scrollTop = ratio * editorMax;
-            }
+      isSyncingPreview = true;
 
-            isSyncingPreview = false;
-        }
+      const editorMax = content_md.scrollHeight - content_md.clientHeight;
+      const previewMax = preview.scrollHeight - preview.clientHeight;
 
-        content_md.addEventListener("input", updatePreview);
-        content_md.addEventListener("scroll", syncEditorToPreview);
-        preview.addEventListener("scroll", syncPreviewToEditor);
-    </script>
+      if (editorMax > 0 && previewMax > 0) {
+        const ratio = preview.scrollTop / previewMax;
+        content_md.scrollTop = ratio * editorMax;
+      }
+
+      isSyncingPreview = false;
+    }
+
+    content_md.addEventListener("input", updatePreview);
+    content_md.addEventListener("scroll", syncEditorToPreview);
+    preview.addEventListener("scroll", syncPreviewToEditor);
+  </script>
 {% endblock %}
