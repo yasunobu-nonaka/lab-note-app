@@ -1,11 +1,11 @@
 from app.models import db, User, Note
 
-def request_note_creation(client):
+def request_note_creation(client, title, content_md):
     res = client.post(
         "/notes/new",
         data={
-            "title": "テストノート",
-            "content_md": "- 要素１\n- 要素２\n- 要素３",
+            "title": title,
+            "content_md": content_md,
         },
         follow_redirects=True,
     )
@@ -31,7 +31,7 @@ def test_notes_index(logged_in_client):
 
 
 def test_note_creation(logged_in_client):
-    res = request_note_creation(logged_in_client)
+    res = request_note_creation(logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３")
     assert res.status_code == 200
 
 
