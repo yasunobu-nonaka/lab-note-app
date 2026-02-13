@@ -1,6 +1,6 @@
 from app.models import db, User
 
-def register_user(client, username, password, confirm):
+def request_register(client, username, password, confirm):
     res = client.post(
         "/register",
         data={
@@ -20,13 +20,25 @@ def create_user(app, username, password):
         db.session.add(user)
         db.session.commit()
 
+def request_login(client, username, password):
+    res = client.post(
+        "/login",
+        data={
+            "username": username,
+            "password": password,
+        },
+        follow_redirects=True,
+    )
+
+    return res
+
 
 #############################################
     # tests for register
 #############################################
 
 def test_register(client, app):
-    res = register_user(client, "shakesan", "oishishake1234", "oishishake1234")
+    res = request_register(client, "shakesan", "oishishake1234", "oishishake1234")
     assert res.status_code == 200
     
     with app.app_context():
@@ -35,7 +47,7 @@ def test_register(client, app):
 
 
 def test_short_password_register_rejected(client, app):
-    res = register_user(client, "shakesan", "shake1234", "shake1234")
+    res = request_register(client, "shakesan", "shake1234", "shake1234")
     assert res.status_code == 200
     
     with app.app_context():
@@ -43,7 +55,7 @@ def test_short_password_register_rejected(client, app):
         assert user is None
 
 def test_no_confirm_register_rejected(client, app):
-    res = register_user(client, "shakesan", "shake1234", "")
+    res = request_register(client, "shakesan", "shake1234", "")
     assert res.status_code == 200
     
     with app.app_context():
@@ -54,7 +66,7 @@ def test_no_confirm_register_rejected(client, app):
 def test_duplicate_username_register_rejected(client, app):
     test_register(client, app)
 
-    res = register_user(client, "shakesan", "password1234", "password1234")
+    res = request_register(client, "shakesan", "password1234", "password1234")
     assert res.status_code == 200
 
     with app.app_context():
