@@ -94,11 +94,10 @@ def test_notes_index_does_not_show_others_notes(logged_in_client, app):
         db.session.commit()
 
     res = logged_in_client.get("/notes/")
-    html = res.data.decode("utf-8")
 
     assert res.status_code == 200
-    assert "ユーザーA作成ノート" in html
-    assert "ユーザーB作成ノート" not in html
+    assert "ユーザーA作成ノート" in res.text
+    assert "ユーザーB作成ノート" not in res.text
 
 
 def test_cannot_accesss_others_note_detail(logged_in_client, app):
@@ -121,3 +120,5 @@ def test_cannot_accesss_others_note_detail(logged_in_client, app):
     res = logged_in_client.get(f"/notes/{note_b_id}")
 
     assert res.status_code in (403, 404)
+    assert "Not Found" in res.text
+    assert "ユーザーB作成ノート" not in res.text
