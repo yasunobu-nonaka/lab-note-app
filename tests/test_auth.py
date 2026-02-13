@@ -1,4 +1,4 @@
-from app.models import User
+from app.models import db, User
 
 def register_user(client, username, password, confirm):
     res = client.post(
@@ -12,6 +12,18 @@ def register_user(client, username, password, confirm):
     )
     
     return res
+
+def create_user(app, username, password):
+    with app.app_context():
+        user = User(username=username)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+
+#############################################
+    # tests for register
+#############################################
 
 def test_register(client, app):
     res = register_user(client, "shakesan", "oishishake1234", "oishishake1234")
@@ -49,9 +61,12 @@ def test_duplicate_username_register_rejected(client, app):
         users = User.query.filter_by(username="shakesan").all()
         assert len(users) == 1
 
+#############################################
+    # tests for login
+#############################################
 
-def test_login(client):
-    register_user(client, "shakesan", "oishishake1234", "oishishake1234")
+def test_login(client, app):
+    create_user(app, "shakesan", "oishishake1234")
 
     res = client.post(
         "/login",
@@ -65,9 +80,12 @@ def test_login(client):
     assert len(res.history) == 1
     assert res.status_code == 200
 
+    with client.session_transaction() as session:
+        assert "_user_id" in session
 
-def test_missed_password_login_rejected(client):
-    register_user(client, "shakesan", "oishishake1234", "oishishake1234")
+
+def test_wrong_password_login_rejected(client, app):
+    create_user(app, "shakesan", "oishishake1234")
 
     res = client.post(
         "/login",
@@ -82,9 +100,12 @@ def test_missed_password_login_rejected(client):
     assert res.status_code == 200
     assert "ユーザー名またはパスワードが違います。" in res.text
 
+    with client.session_transaction() as session:
+        assert "_user_id" not in session
 
-def test_no_password_login_rejected(client):
-    register_user(client, "shakesan", "oishishake1234", "oishishake1234")
+
+def test_no_password_login_rejected(client, app):
+    create_user(app, "shakesan", "oishishake1234")
 
     res = client.post(
         "/login",
@@ -98,3 +119,6 @@ def test_no_password_login_rejected(client):
     assert len(res.history) == 0
     assert res.status_code == 200
     assert "パスワードは必須です" in res.text
+
+    with client.session_transaction() as session:
+        assert "_user_id" not in session
