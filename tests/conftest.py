@@ -3,6 +3,7 @@ from app import create_app
 from app.models import db
 from app.models import User, Note
 
+
 def request_register(client, username, password, confirm):
     res = client.post(
         "/register",
@@ -13,7 +14,7 @@ def request_register(client, username, password, confirm):
         },
         follow_redirects=True,
     )
-    
+
     return res
 
 
@@ -56,7 +57,7 @@ def client(app):
 @pytest.fixture
 def logged_in_client(client, app):
     create_user(app, "testuser", "password1234")
-    
+
     client.post(
         "/login",
         data={

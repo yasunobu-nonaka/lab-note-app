@@ -1,5 +1,6 @@
 from app.models import db, User, Note
 
+
 def request_note_creation(client, title, content_md):
     res = client.post(
         "/notes/new",
@@ -14,8 +15,9 @@ def request_note_creation(client, title, content_md):
 
 
 #############################################
-    # tests
+# tests
 #############################################
+
 
 def test_login_required(client):
     res = client.get("/notes/")
@@ -31,7 +33,9 @@ def test_notes_index(logged_in_client):
 
 
 def test_note_creation(logged_in_client):
-    res = request_note_creation(logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３")
+    res = request_note_creation(
+        logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３"
+    )
     assert len(res.history) == 1
     assert res.status_code == 200
     assert "ノートを作成しました。" in res.text
@@ -39,7 +43,9 @@ def test_note_creation(logged_in_client):
 
 
 def test_no_title_note_creation_rejected(logged_in_client):
-    res = request_note_creation(logged_in_client, "", "- 要素１\n- 要素２\n- 要素３")
+    res = request_note_creation(
+        logged_in_client, "", "- 要素１\n- 要素２\n- 要素３"
+    )
     assert len(res.history) == 0
     assert res.status_code == 200
     assert "タイトルは必須です" in res.text
@@ -52,9 +58,7 @@ def test_notes_index_shows_note(logged_in_client, app):
         user = User.query.first()
 
         note = Note(
-            user_id=user.id,
-            title="テストノート",
-            content_md="ノートの内容"
+            user_id=user.id, title="テストノート", content_md="ノートの内容"
         )
 
         db.session.add(note)
@@ -78,13 +82,13 @@ def test_notes_index_does_not_show_others_notes(logged_in_client, app):
         note_a = Note(
             user_id=user_a.id,
             title="ユーザーA作成ノート",
-            content_md="ユーザーAが作成したノート"
+            content_md="ユーザーAが作成したノート",
         )
 
         note_b = Note(
             user_id=user_b.id,
             title="ユーザーB作成ノート",
-            content_md="ユーザーBが作成したノート"
+            content_md="ユーザーBが作成したノート",
         )
         db.session.add_all([note_a, note_b])
         db.session.commit()
@@ -107,13 +111,13 @@ def test_cannot_accesss_others_note_detail(logged_in_client, app):
         note_b = Note(
             user_id=user_b.id,
             title="ユーザーB作成ノート",
-            content_md="ユーザーBが作成したノート"
+            content_md="ユーザーBが作成したノート",
         )
         db.session.add(note_b)
         db.session.commit()
 
         note_b_id = note_b.id
-    
+
     res = logged_in_client.get(f"/notes/{note_b_id}")
 
     assert res.status_code in (403, 404)

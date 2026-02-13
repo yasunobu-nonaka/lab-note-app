@@ -2,13 +2,16 @@ from app.models import db, User
 from conftest import request_register, create_user, request_login
 
 #############################################
-    # tests for register
+# tests for register
 #############################################
 
+
 def test_register(client, app):
-    res = request_register(client, "shakesan", "oishishake1234", "oishishake1234")
+    res = request_register(
+        client, "shakesan", "oishishake1234", "oishishake1234"
+    )
     assert res.status_code == 200
-    
+
     with app.app_context():
         user = User.query.filter_by(username="shakesan").first()
         assert user is not None
@@ -17,15 +20,16 @@ def test_register(client, app):
 def test_short_password_register_rejected(client, app):
     res = request_register(client, "shakesan", "shake1234", "shake1234")
     assert res.status_code == 200
-    
+
     with app.app_context():
         user = User.query.filter_by(username="shakesan").first()
         assert user is None
 
+
 def test_no_confirm_register_rejected(client, app):
     res = request_register(client, "shakesan", "shake1234", "")
     assert res.status_code == 200
-    
+
     with app.app_context():
         user = User.query.filter_by(username="shakesan").first()
         assert user is None
@@ -41,9 +45,11 @@ def test_duplicate_username_register_rejected(client, app):
         users = User.query.filter_by(username="shakesan").all()
         assert len(users) == 1
 
+
 #############################################
-    # tests for login
+# tests for login
 #############################################
+
 
 def test_login(client, app):
     create_user(app, "shakesan", "oishishake1234")
@@ -109,4 +115,3 @@ def test_logout_requires_login(client):
 
     # loginページが表示される
     assert "ログイン" in res.text
-
