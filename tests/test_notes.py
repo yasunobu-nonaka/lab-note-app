@@ -18,7 +18,7 @@ def request_note_creation(client):
 #############################################
 
 def test_login_required(client):
-    res = client.get("/notes/1")
+    res = client.get("/notes/")
     assert res.status_code == 302
     assert "/login" in res.headers["location"]
 
@@ -26,6 +26,8 @@ def test_login_required(client):
 def test_notes_index(logged_in_client):
     res = logged_in_client.get("/notes/", follow_redirects=True)
     assert res.status_code == 200
+    assert "ノート一覧" in res.text
+    assert "まだノートがありません。" in res.text
 
 
 def test_note_creation(logged_in_client):
