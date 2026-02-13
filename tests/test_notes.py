@@ -1,10 +1,5 @@
 from app.models import db, User, Note
 
-def test_login_required(client):
-    res = client.get("/notes/1")
-    assert res.status_code == 302
-    assert "/login" in res.headers["location"]
-
 def request_note_creation(client):
     res = client.post(
         "/notes/new",
@@ -17,13 +12,26 @@ def request_note_creation(client):
 
     return res
 
+
+#############################################
+    # tests
+#############################################
+
+def test_login_required(client):
+    res = client.get("/notes/1")
+    assert res.status_code == 302
+    assert "/login" in res.headers["location"]
+
+
 def test_notes_index(logged_in_client):
     res = logged_in_client.get("/notes/", follow_redirects=True)
     assert res.status_code == 200
 
+
 def test_note_creation(logged_in_client):
     res = request_note_creation(logged_in_client)
     assert res.status_code == 200
+
 
 def test_notes_index_shows_note(logged_in_client, app):
     with app.app_context():
@@ -44,6 +52,7 @@ def test_notes_index_shows_note(logged_in_client, app):
 
     assert res.status_code == 200
     assert "テストノート" in html
+
 
 def test_notes_index_does_not_show_others_notes(logged_in_client, app):
     with app.app_context():
@@ -74,6 +83,7 @@ def test_notes_index_does_not_show_others_notes(logged_in_client, app):
     assert res.status_code == 200
     assert "ユーザーA作成ノート" in html
     assert "ユーザーB作成ノート" not in html
+
 
 def test_cannot_accesss_others_note_detail(logged_in_client, app):
     with app.app_context():
