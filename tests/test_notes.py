@@ -128,6 +128,35 @@ def test_note_edit(logged_in_client, app):
 
 
 #############################################
+# test for delete note
+#############################################
+def test_delete_note(logged_in_client, app):
+    with app.app_context():
+        user = User.query.first()
+
+        note = Note(
+            user_id=user.id, title="テストノート", content_md="ノートの内容"
+        )
+
+        db.session.add(note)
+        db.session.commit()
+
+        note_id = note.id
+
+    res = logged_in_client.post(
+        f"/notes/{note_id}/delete", follow_redirects=True
+    )
+
+    assert len(res.history) == 1
+    assert res.status_code == 200
+    assert "ノートを削除しました。" in res.text
+
+    with app.app_context():
+        note = Note.query.get(note_id)
+        assert note is None
+
+
+#############################################
 # test for note authorization
 #############################################
 
