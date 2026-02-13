@@ -24,8 +24,8 @@ def logged_in_client(client):
         "/register",
         data={
             "username": "testuser",
-            "password": "password123",
-            "confirm": "password123",
+            "password": "password1234",
+            "confirm": "password1234",
         },
         follow_redirects=True,
     )
@@ -34,7 +34,7 @@ def logged_in_client(client):
         "/login",
         data={
             "username": "testuser",
-            "password": "password123",
+            "password": "password1234",
         },
         follow_redirects=True,
     )
