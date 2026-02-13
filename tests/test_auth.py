@@ -66,6 +66,23 @@ def test_login(client):
     assert res.status_code == 200
 
 
+def test_missed_password_login_rejected(client):
+    register_user(client, "shakesan", "oishishake1234", "oishishake1234")
+
+    res = client.post(
+        "/login",
+        data={
+            "username": "shakesan",
+            "password": "moishishake1234",
+        },
+            follow_redirects=True,
+    )
+
+    assert len(res.history) == 0
+    assert res.status_code == 200
+    assert "ユーザー名またはパスワードが違います。" in res.text
+
+
 def test_no_password_login_rejected(client):
     register_user(client, "shakesan", "oishishake1234", "oishishake1234")
 
