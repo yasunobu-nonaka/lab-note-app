@@ -84,6 +84,8 @@ def test_login(client, app):
 
     assert len(res.history) == 1
     assert res.status_code == 200
+    assert "ログインしました。" in res.text
+    assert res.request.path == "/notes/"
 
     with client.session_transaction() as session:
         assert "_user_id" in session
@@ -110,6 +112,22 @@ def test_no_password_login_rejected(client, app):
     assert len(res.history) == 0
     assert res.status_code == 200
     assert "パスワードは必須です" in res.text
+
+    with client.session_transaction() as session:
+        assert "_user_id" not in session
+
+
+def test_logout(client, app):
+    create_user(app, "shakesan", "oishishake1234")
+
+    request_login(client, "shakesan", "oishishake1234")
+
+    res = client.get("/logout", follow_redirects=True)
+
+    assert len(res.history) == 1
+    assert res.status_code == 200
+    assert "ログアウトしました。" in res.text
+    assert res.request.path == "/login"
 
     with client.session_transaction() as session:
         assert "_user_id" not in session
