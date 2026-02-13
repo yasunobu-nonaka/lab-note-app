@@ -80,14 +80,7 @@ def test_duplicate_username_register_rejected(client, app):
 def test_login(client, app):
     create_user(app, "shakesan", "oishishake1234")
 
-    res = client.post(
-        "/login",
-        data={
-            "username": "shakesan",
-            "password": "oishishake1234",
-        },
-        follow_redirects=True,
-    )
+    res = request_login(client, "shakesan", "oishishake1234")
 
     assert len(res.history) == 1
     assert res.status_code == 200
@@ -99,14 +92,7 @@ def test_login(client, app):
 def test_wrong_password_login_rejected(client, app):
     create_user(app, "shakesan", "oishishake1234")
 
-    res = client.post(
-        "/login",
-        data={
-            "username": "shakesan",
-            "password": "moishishake1234",
-        },
-            follow_redirects=True,
-    )
+    res = request_login(client, "shakesan", "moishishake1234")
 
     assert len(res.history) == 0
     assert res.status_code == 200
@@ -119,14 +105,7 @@ def test_wrong_password_login_rejected(client, app):
 def test_no_password_login_rejected(client, app):
     create_user(app, "shakesan", "oishishake1234")
 
-    res = client.post(
-        "/login",
-        data={
-            "username": "shakesan",
-            "password": "",
-        },
-            follow_redirects=True,
-    )
+    res = request_login(client, "shakesan", "")
 
     assert len(res.history) == 0
     assert res.status_code == 200
