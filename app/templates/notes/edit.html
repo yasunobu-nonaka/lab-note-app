@@ -9,7 +9,11 @@
 {% block content %}
     <h1 class="text-xl mb-4">ノート編集</h1>
 
-    <form action="{{ url_for('notes.edit_note', note_id=note.id) }}" method="post">
+    <form
+        action="{{ url_for('notes.edit_note', note_id=note.id) }}"
+        method="post"
+        novalidate
+    >
         {{ form.csrf_token }}
         <div class="mb-4">
             {{ form.title.label(class="block text-lg") }}
@@ -17,11 +21,13 @@
                 class="w-full bg-white border-1 border-solid px-1 py-2"
             ) }}
 
-        {% if form.title.errors %}
-            {% for error in form.title.errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-        {% endif %}
+            {% if form.title.errors %}
+                <ul class="errors text-red-500">
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
 
         <div>
@@ -37,9 +43,11 @@
                 ></div>
             </div>
             {% if form.content_md.errors %}
-                {% for error in form.content_md.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
+                <ul class="errors text-red-500">
+                    {% for error in form.content_md.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
             {% endif %}
         </div>
 
