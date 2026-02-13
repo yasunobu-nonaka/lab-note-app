@@ -3,6 +3,41 @@ from app import create_app
 from app.models import db
 from app.models import User, Note
 
+def request_register(client, username, password, confirm):
+    res = client.post(
+        "/register",
+        data={
+            "username": username,
+            "password": password,
+            "confirm": confirm,
+        },
+        follow_redirects=True,
+    )
+    
+    return res
+
+
+def create_user(app, username, password):
+    with app.app_context():
+        user = User(username=username)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+
+def request_login(client, username, password):
+    res = client.post(
+        "/login",
+        data={
+            "username": username,
+            "password": password,
+        },
+        follow_redirects=True,
+    )
+
+    return res
+
+
 @pytest.fixture
 def app():
     app = create_app(config_name="testing")
@@ -19,16 +54,8 @@ def client(app):
 
 
 @pytest.fixture
-def logged_in_client(client):
-    client.post(
-        "/register",
-        data={
-            "username": "testuser",
-            "password": "password1234",
-            "confirm": "password1234",
-        },
-        follow_redirects=True,
-    )
+def logged_in_client(client, app):
+    create_user(app, "testuser", "password1234")
     
     client.post(
         "/login",

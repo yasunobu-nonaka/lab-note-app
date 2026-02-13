@@ -1,37 +1,5 @@
 from app.models import db, User
-
-def request_register(client, username, password, confirm):
-    res = client.post(
-        "/register",
-        data={
-            "username": username,
-            "password": password,
-            "confirm": confirm,
-        },
-        follow_redirects=True,
-    )
-    
-    return res
-
-def create_user(app, username, password):
-    with app.app_context():
-        user = User(username=username)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-
-def request_login(client, username, password):
-    res = client.post(
-        "/login",
-        data={
-            "username": username,
-            "password": password,
-        },
-        follow_redirects=True,
-    )
-
-    return res
-
+from conftest import request_register, create_user, request_login
 
 #############################################
     # tests for register
