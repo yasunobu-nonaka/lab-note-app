@@ -51,12 +51,10 @@ def test_notes_index_shows_note(logged_in_client, app):
         db.session.add(note)
         db.session.commit()
 
-    res = logged_in_client.get("/notes/")
-
-    html = res.data.decode("utf-8")
+    res = logged_in_client.get("/notes/", follow_redirects=True)
 
     assert res.status_code == 200
-    assert "テストノート" in html
+    assert "テストノート" in res.text
 
 
 def test_notes_index_does_not_show_others_notes(logged_in_client, app):
