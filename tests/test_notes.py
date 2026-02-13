@@ -7,7 +7,7 @@ def test_login_required(client):
 
 def create_note(client):
     res = client.post(
-        "/notes",
+        "/notes/new",
         data={
             "title": "テストノート",
             "content_md": "- 要素１\n- 要素２\n- 要素３",
@@ -18,7 +18,7 @@ def create_note(client):
     return res
 
 def test_notes_index(logged_in_client):
-    res = logged_in_client.get("/notes/")
+    res = logged_in_client.get("/notes/", follow_redirects=True)
     assert res.status_code == 200
 
 def test_note_creation(logged_in_client):
