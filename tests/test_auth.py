@@ -65,3 +65,19 @@ def test_login(client):
     assert len(res.history) == 1
     assert res.status_code == 200
 
+
+def test_no_password_login_rejected(client):
+    register_user(client, "shakesan", "oishishake1234", "oishishake1234")
+
+    res = client.post(
+        "/login",
+        data={
+            "username": "shakesan",
+            "password": "",
+        },
+            follow_redirects=True,
+    )
+
+    assert len(res.history) == 0
+    assert res.status_code == 200
+    assert "パスワードは必須です" in res.text
