@@ -210,6 +210,6 @@ def test_cannot_accesss_others_note_detail(logged_in_client, app):
 
     res = logged_in_client.get(f"/notes/{note_b_id}")
 
-    assert res.status_code in (403, 404)
+    assert res.status_code == 404
     assert "Not Found" in res.text
     assert "ユーザーB作成ノート" not in res.text
