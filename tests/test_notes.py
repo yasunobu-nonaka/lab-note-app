@@ -32,7 +32,10 @@ def test_notes_index(logged_in_client):
 
 def test_note_creation(logged_in_client):
     res = request_note_creation(logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３")
+    assert len(res.history) == 1
     assert res.status_code == 200
+    assert "ノートを作成しました。" in res.text
+    assert "テストノート" in res.text
 
 
 def test_notes_index_shows_note(logged_in_client, app):
