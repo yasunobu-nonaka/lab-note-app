@@ -37,7 +37,7 @@ def test_notes_index(logged_in_client):
 #############################################
 
 
-def test_note_creation(logged_in_client):
+def test_note_creation(logged_in_client, app):
     res = request_note_creation(
         logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３"
     )
@@ -45,6 +45,10 @@ def test_note_creation(logged_in_client):
     assert res.status_code == 200
     assert "ノートを作成しました。" in res.text
     assert "テストノート" in res.text
+
+    with app.app_context():
+        note = Note.query.filter_by(title="テストノート").first()
+        assert note is not None
 
 
 def test_no_title_note_creation_rejected(logged_in_client):
@@ -86,6 +90,41 @@ def test_notes_index_shows_note(logged_in_client, app):
 
     assert res.status_code == 200
     assert "テストノート" in res.text
+
+
+#############################################
+# test for note edit
+#############################################
+def test_note_edit(logged_in_client, app):
+    with app.app_context():
+        user = User.query.first()
+
+        note = Note(
+            user_id=user.id, title="テストノート", content_md="ノートの内容"
+        )
+
+        db.session.add(note)
+        db.session.commit()
+
+        note_id = note.id
+
+    res = logged_in_client.post(
+        f"/notes/{note_id}/edit",
+        data={
+            "title": "テストノート（日付）",
+            "content_md": "おもしろいノートの内容",
+        },
+        follow_redirects=True,
+    )
+    assert len(res.history) == 1
+    assert res.status_code == 200
+    assert "ノートを更新しました。" in res.text
+    assert "テストノート（日付）" in res.text
+
+    with app.app_context():
+        note = Note.query.get(note_id)
+        assert note.title == "テストノート（日付）"
+        assert note.content_md == "おもしろいノートの内容"
 
 
 #############################################
