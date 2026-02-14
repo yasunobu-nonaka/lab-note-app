@@ -48,7 +48,8 @@ def test_duplicate_username_register_rejected(client, app):
     assert res.status_code == 200
 
     with app.app_context():
-        users = User.query.filter_by(username="shakesan").all()
+        stmt = db.select(User).filter_by(username="shakesan")
+        users = db.session.execute(stmt).scalars().all()
         assert len(users) == 1
 
 

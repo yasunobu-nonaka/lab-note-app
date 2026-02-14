@@ -11,7 +11,12 @@ from ..forms.notes import NewNoteForm, EditNoteForm
 @notes_bp.route("/")
 @login_required
 def notes_index():
-    notes = Note.query.filter_by(user_id=current_user.id).order_by(Note.updated_at.desc()).all()
+    stmt = (
+        db.select(Note)
+        .filter_by(user_id=current_user.id)
+        .order_by(Note.updated_at.desc())
+    )
+    notes = db.session.execute(stmt).scalars().all()
     return render_template("notes/index.html", notes=notes)
 
 
@@ -42,8 +47,7 @@ def new_note():
 @login_required
 def show_note(note_id):
     note = Note.query.filter_by(
-        id=note_id,
-        user_id=current_user.id
+        id=note_id, user_id=current_user.id
     ).first_or_404()
     html_text = md_to_html(note.content_md)
     return render_template("notes/show.html", note=note, html_text=html_text)
@@ -53,19 +57,18 @@ def show_note(note_id):
 @login_required
 def edit_note(note_id):
     note = Note.query.filter_by(
-        id=note_id,
-        user_id=current_user.id
+        id=note_id, user_id=current_user.id
     ).first_or_404()
 
     form = EditNoteForm(obj=note)
 
     if form.validate_on_submit():
-        form.populate_obj(note) # フォームの値をモデルへ反映する
-        
+        form.populate_obj(note)  # フォームの値をモデルへ反映する
+
         db.session.commit()
         flash("ノートを更新しました。", "info")
 
-        return redirect(url_for('notes.show_note', note_id=note.id))        
+        return redirect(url_for("notes.show_note", note_id=note.id))
 
     return render_template("notes/edit.html", note=note, form=form)
 
@@ -74,8 +77,7 @@ def edit_note(note_id):
 @login_required
 def delete_note(note_id):
     note = Note.query.filter_by(
-        id=note_id,
-        user_id=current_user.id
+        id=note_id, user_id=current_user.id
     ).first_or_404()
 
     db.session.delete(note)
@@ -83,4 +85,4 @@ def delete_note(note_id):
 
     flash("ノートを削除しました。", "danger")
 
-    return redirect(url_for('notes.notes_index'))
+    return redirect(url_for("notes.notes_index"))
