@@ -122,7 +122,7 @@ def test_note_edit(logged_in_client, app):
     assert "テストノート（日付）" in res.text
 
     with app.app_context():
-        note = Note.query.get(note_id)
+        note = db.session.get(Note, note_id)
         assert note.title == "テストノート（日付）"
         assert note.content_md == "おもしろいノートの内容"
 
@@ -152,7 +152,7 @@ def test_delete_note(logged_in_client, app):
     assert "ノートを削除しました。" in res.text
 
     with app.app_context():
-        note = Note.query.get(note_id)
+        note = db.session.get(Note, note_id)
         assert note is None
 
 
