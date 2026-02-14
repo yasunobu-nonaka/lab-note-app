@@ -47,7 +47,9 @@ def test_note_creation(logged_in_client, app):
     assert "テストノート" in res.text
 
     with app.app_context():
-        note = Note.query.filter_by(title="テストノート").first()
+        note = db.session.execute(
+            db.select(Note).filter_by(title="テストノート")
+        ).scalar_one_or_none()
         assert note is not None
 
 
@@ -163,7 +165,9 @@ def test_delete_note(logged_in_client, app):
 
 def test_notes_index_does_not_show_others_notes(logged_in_client, app):
     with app.app_context():
-        user_a = User.query.filter_by(username="testuser").first()
+        user_a = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         user_b = User(username="testuser2")
         user_b.set_password("password21234")

@@ -7,6 +7,7 @@ from . import auth_bp
 
 from ..forms.auth import RegistrationForm, LoginForm
 
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     form = RegistrationForm()
@@ -15,7 +16,9 @@ def register():
         username = form.username.data
         password = form.password.data
 
-        if User.query.filter_by(username=username).first():
+        if db.session.execute(
+            db.select(User).filter_by(username=username)
+        ).scalar_one_or_none():
             flash("そのユーザー名はすでに使われています。", "danger")
             return redirect(url_for("auth.register"))
 
@@ -28,7 +31,7 @@ def register():
         login_user(user)
         flash("ユーザー登録が完了しました。", "success")
 
-        return redirect(url_for("notes.notes_index")) # ノート一覧へ
+        return redirect(url_for("notes.notes_index"))  # ノート一覧へ
 
     return render_template("register.html", form=form)
 
@@ -41,7 +44,9 @@ def login():
         username = form.username.data
         password = form.password.data
 
-        user = User.query.filter_by(username=username).first()
+        user = db.session.execute(
+            db.select(User).filter_by(username=username)
+        ).scalar_one_or_none()
 
         if user and user.check_password(password):
             login_user(user)
