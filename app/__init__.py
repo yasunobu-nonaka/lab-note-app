@@ -11,23 +11,28 @@ from .notes import notes_bp
 migrate = Migrate()
 csrf = CSRFProtect()
 
+
 def create_app(config_name="local"):
     app = Flask(__name__, instance_relative_config=True)
 
     if config_name == "testing":
         app.config.from_mapping(
             SECRET_KEY="test-secret",
-            SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:",
+            SQLALCHEMY_DATABASE_URI="sqlite:///:memory:",
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
             TESTING=True,
-            WTF_CSRF_ENABLED=False
+            WTF_CSRF_ENABLED=False,
         )
-    else:    
+    else:
         app.config.from_mapping(
             SECRET_KEY=os.environ.get("SECRET_KEY", "fallback-secret"),
-            SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///notes.db"),
+            SQLALCHEMY_DATABASE_URI=os.environ.get(
+                "DATABASE_URL", "sqlite:///notes.db"
+            ),
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
-            WTF_CSRF_SECRET_KEY = os.environ.get("WTF_CSRF_SECRET_KEY", "fallback-secret")
+            WTF_CSRF_SECRET_KEY=os.environ.get(
+                "WTF_CSRF_SECRET_KEY", "fallback-secret"
+            ),
         )
 
     db.init_app(app)
@@ -40,7 +45,7 @@ def create_app(config_name="local"):
 
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        return db.session.get(User, int(user_id))
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(notes_bp)

@@ -11,7 +11,12 @@ from ..forms.notes import NewNoteForm, EditNoteForm
 @notes_bp.route("/")
 @login_required
 def notes_index():
-    notes = Note.query.filter_by(user_id=current_user.id).order_by(Note.updated_at.desc()).all()
+    stmt = (
+        db.select(Note)
+        .filter_by(user_id=current_user.id)
+        .order_by(Note.updated_at.desc())
+    )
+    notes = db.session.execute(stmt).scalars().all()
     return render_template("notes/index.html", notes=notes)
 
 
@@ -41,10 +46,9 @@ def new_note():
 @notes_bp.route("/<int:note_id>")
 @login_required
 def show_note(note_id):
-    note = Note.query.filter_by(
-        id=note_id,
-        user_id=current_user.id
-    ).first_or_404()
+    note = db.first_or_404(
+        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
+    )
     html_text = md_to_html(note.content_md)
     return render_template("notes/show.html", note=note, html_text=html_text)
 
@@ -52,20 +56,18 @@ def show_note(note_id):
 @notes_bp.route("/<int:note_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_note(note_id):
-    note = Note.query.filter_by(
-        id=note_id,
-        user_id=current_user.id
-    ).first_or_404()
-
+    note = db.first_or_404(
+        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
+    )
     form = EditNoteForm(obj=note)
 
     if form.validate_on_submit():
-        form.populate_obj(note) # フォームの値をモデルへ反映する
-        
+        form.populate_obj(note)  # フォームの値をモデルへ反映する
+
         db.session.commit()
         flash("ノートを更新しました。", "info")
 
-        return redirect(url_for('notes.show_note', note_id=note.id))        
+        return redirect(url_for("notes.show_note", note_id=note.id))
 
     return render_template("notes/edit.html", note=note, form=form)
 
@@ -73,14 +75,12 @@ def edit_note(note_id):
 @notes_bp.route("/<int:note_id>/delete", methods=["POST"])
 @login_required
 def delete_note(note_id):
-    note = Note.query.filter_by(
-        id=note_id,
-        user_id=current_user.id
-    ).first_or_404()
-
+    note = db.first_or_404(
+        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
+    )
     db.session.delete(note)
     db.session.commit()
 
     flash("ノートを削除しました。", "danger")
 
-    return redirect(url_for('notes.notes_index'))
+    return redirect(url_for("notes.notes_index"))

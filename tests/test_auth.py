@@ -13,7 +13,9 @@ def test_register(client, app):
     assert res.status_code == 200
 
     with app.app_context():
-        user = User.query.filter_by(username="shakesan").first()
+        user = db.session.execute(
+            db.select(User).filter_by(username="shakesan")
+        ).scalar_one_or_none()
         assert user is not None
 
 
@@ -22,7 +24,9 @@ def test_short_password_register_rejected(client, app):
     assert res.status_code == 200
 
     with app.app_context():
-        user = User.query.filter_by(username="shakesan").first()
+        user = db.session.execute(
+            db.select(User).filter_by(username="shakesan")
+        ).scalar_one_or_none()
         assert user is None
 
 
@@ -31,7 +35,9 @@ def test_no_confirm_register_rejected(client, app):
     assert res.status_code == 200
 
     with app.app_context():
-        user = User.query.filter_by(username="shakesan").first()
+        user = db.session.execute(
+            db.select(User).filter_by(username="shakesan")
+        ).scalar_one_or_none()
         assert user is None
 
 
@@ -42,7 +48,8 @@ def test_duplicate_username_register_rejected(client, app):
     assert res.status_code == 200
 
     with app.app_context():
-        users = User.query.filter_by(username="shakesan").all()
+        stmt = db.select(User).filter_by(username="shakesan")
+        users = db.session.execute(stmt).scalars().all()
         assert len(users) == 1
 
 

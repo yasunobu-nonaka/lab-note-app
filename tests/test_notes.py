@@ -47,7 +47,9 @@ def test_note_creation(logged_in_client, app):
     assert "テストノート" in res.text
 
     with app.app_context():
-        note = Note.query.filter_by(title="テストノート").first()
+        note = db.session.execute(
+            db.select(Note).filter_by(title="テストノート")
+        ).scalar_one_or_none()
         assert note is not None
 
 
@@ -77,7 +79,7 @@ def test_too_long_title_note_creation_rejected(logged_in_client):
 
 def test_notes_index_shows_note(logged_in_client, app):
     with app.app_context():
-        user = User.query.first()
+        user = db.session.execute(db.select(User)).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -97,7 +99,7 @@ def test_notes_index_shows_note(logged_in_client, app):
 #############################################
 def test_note_edit(logged_in_client, app):
     with app.app_context():
-        user = User.query.first()
+        user = db.session.execute(db.select(User)).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -122,7 +124,7 @@ def test_note_edit(logged_in_client, app):
     assert "テストノート（日付）" in res.text
 
     with app.app_context():
-        note = Note.query.get(note_id)
+        note = db.session.get(Note, note_id)
         assert note.title == "テストノート（日付）"
         assert note.content_md == "おもしろいノートの内容"
 
@@ -132,7 +134,7 @@ def test_note_edit(logged_in_client, app):
 #############################################
 def test_delete_note(logged_in_client, app):
     with app.app_context():
-        user = User.query.first()
+        user = db.session.execute(db.select(User)).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -152,7 +154,7 @@ def test_delete_note(logged_in_client, app):
     assert "ノートを削除しました。" in res.text
 
     with app.app_context():
-        note = Note.query.get(note_id)
+        note = db.session.get(Note, note_id)
         assert note is None
 
 
@@ -163,7 +165,9 @@ def test_delete_note(logged_in_client, app):
 
 def test_notes_index_does_not_show_others_notes(logged_in_client, app):
     with app.app_context():
-        user_a = User.query.filter_by(username="testuser").first()
+        user_a = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         user_b = User(username="testuser2")
         user_b.set_password("password21234")
