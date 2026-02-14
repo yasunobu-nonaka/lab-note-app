@@ -46,9 +46,9 @@ def new_note():
 @notes_bp.route("/<int:note_id>")
 @login_required
 def show_note(note_id):
-    note = Note.query.filter_by(
-        id=note_id, user_id=current_user.id
-    ).first_or_404()
+    note = db.first_or_404(
+        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
+    )
     html_text = md_to_html(note.content_md)
     return render_template("notes/show.html", note=note, html_text=html_text)
 
@@ -56,10 +56,9 @@ def show_note(note_id):
 @notes_bp.route("/<int:note_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_note(note_id):
-    note = Note.query.filter_by(
-        id=note_id, user_id=current_user.id
-    ).first_or_404()
-
+    note = db.first_or_404(
+        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
+    )
     form = EditNoteForm(obj=note)
 
     if form.validate_on_submit():
@@ -76,10 +75,9 @@ def edit_note(note_id):
 @notes_bp.route("/<int:note_id>/delete", methods=["POST"])
 @login_required
 def delete_note(note_id):
-    note = Note.query.filter_by(
-        id=note_id, user_id=current_user.id
-    ).first_or_404()
-
+    note = db.first_or_404(
+        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
+    )
     db.session.delete(note)
     db.session.commit()
 
