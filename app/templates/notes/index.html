@@ -5,9 +5,16 @@
 {% block content %}
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-3xl font-bold">ノート一覧</h1>
-    <a href="{{ url_for('notes.new_note') }}" class="text-xl  bg-gray-300 rounded px-3 py-2">
-      + 新規ノート作成
-    </a>
+    <div class="ml-auto flex gap-7 items-center">
+      <form action="{{ url_for('notes.search_note') }}" method="get">
+        {{ form.q.label }}
+        {{ form.q(class="bg-white border rounded p-1") }}
+        {{ form.submit(class="border rounded p-1") }}
+      </form>
+      <a href="{{ url_for('notes.new_note') }}" class="text-xl  bg-gray-300 rounded px-3 py-2">
+        + 新規ノート作成
+      </a>
+    </div>
   </div>
 
   <hr />
