@@ -8,15 +8,23 @@ from . import notes_bp
 from ..forms.notes import NewNoteForm, EditNoteForm, SearchForm
 
 
-@notes_bp.route("/")
+@notes_bp.route("/", methods=["GET", "POST"])
 @login_required
 def notes_index():
-    form = SearchForm()
+    form = SearchForm(request.args)
     stmt = (
         db.select(Note)
         .filter_by(user_id=current_user.id)
         .order_by(Note.updated_at.desc())
     )
+
+    if form.validate() and form.q.data:
+        stmt = (
+            db.select(Note)
+            .where(Note.title.ilike(f"%{form.q.data}%"))
+            .order_by(Note.updated_at.desc())
+        )
+
     notes = db.session.execute(stmt).scalars().all()
     return render_template("notes/index.html", notes=notes, form=form)
 
@@ -85,18 +93,3 @@ def delete_note(note_id):
     flash("ノートを削除しました。", "danger")
 
     return redirect(url_for("notes.notes_index"))
-
-
-@notes_bp.route("/search")
-def search_note():
-    # クエリパラメータを取得
-    q = request.args.get("q")
-
-    # Note titleがsearch wordに一致するものを検索
-    notes = (
-        db.session.execute(db.select(Note).where(Note.title.ilike(f"%{q}%")))
-        .scalars()
-        .all()
-    )
-
-    return render_template("notes/search_result.html", notes=notes)

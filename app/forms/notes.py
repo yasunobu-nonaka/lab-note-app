@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SubmitField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Optional
 
 
 class NewNoteForm(FlaskForm):
@@ -31,5 +31,8 @@ class EditNoteForm(FlaskForm):
 
 
 class SearchForm(FlaskForm):
-    q = StringField("ノート検索")
+    q = StringField(
+        "タイトル検索",
+        validators=[Optional(), Length(max=200)],
+    )
     submit = SubmitField("検索")

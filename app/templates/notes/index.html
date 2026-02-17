@@ -6,7 +6,8 @@
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-3xl font-bold">ノート一覧</h1>
     <div class="ml-auto flex gap-7 items-center">
-      <form action="{{ url_for('notes.search_note') }}" method="get">
+      <form action="{{ url_for('notes.notes_index') }}" method="get">
+        {{ form.csrf_token }}
         {{ form.q.label }}
         {{ form.q(class="bg-white border rounded p-1") }}
         {{ form.submit(class="border rounded p-1") }}
@@ -28,6 +29,10 @@
       {% endfor %}
     </ul>
   {% else %}
-    <p class="text-gray-600">まだノートがありません。</p>
+    {% if form.q.data %}
+      <p class="text-gray-600">一致するノートが見つかりませんでした。</p>
+    {% else %}
+      <p class="text-gray-600">まだノートがありません。</p>
+    {% endif %}
   {% endif %}
 {% endblock %}
