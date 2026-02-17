@@ -12,13 +12,16 @@ from ..forms.notes import NewNoteForm, EditNoteForm, SearchForm
 @login_required
 def notes_index():
     form = SearchForm(request.args)
-    stmt = db.select(Note).filter_by(user_id=current_user.id)
+    stmt = db.select(Note).where(Note.user_id == current_user.id)
 
     if form.q.data:
-        stmt = stmt.where(Note.title.ilike(f"%{form.q.data}%"))
+        keyword = f"%{form.q.data.strip()}%"
+        stmt = stmt.where(Note.title.ilike(keyword))
 
     stmt = stmt.order_by(Note.updated_at.desc())
-    notes = db.session.execute(stmt).scalars().all()
+
+    notes = db.session.scalars(stmt).all()
+
     return render_template("notes/index.html", notes=notes, form=form)
 
 
