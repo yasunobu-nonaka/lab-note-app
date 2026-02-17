@@ -31,6 +31,9 @@ class EditNoteForm(FlaskForm):
 
 
 class SearchForm(FlaskForm):
+    class Meta:
+        csrf = False
+
     q = StringField(
         "タイトル検索",
         validators=[Optional(), Length(max=200)],

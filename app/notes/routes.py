@@ -8,23 +8,16 @@ from . import notes_bp
 from ..forms.notes import NewNoteForm, EditNoteForm, SearchForm
 
 
-@notes_bp.route("/", methods=["GET", "POST"])
+@notes_bp.route("/", methods=["GET"])
 @login_required
 def notes_index():
     form = SearchForm(request.args)
-    stmt = (
-        db.select(Note)
-        .filter_by(user_id=current_user.id)
-        .order_by(Note.updated_at.desc())
-    )
+    stmt = db.select(Note).filter_by(user_id=current_user.id)
 
-    if form.validate() and form.q.data:
-        stmt = (
-            db.select(Note)
-            .where(Note.title.ilike(f"%{form.q.data}%"))
-            .order_by(Note.updated_at.desc())
-        )
+    if form.q.data:
+        stmt = stmt.where(Note.title.ilike(f"%{form.q.data}%"))
 
+    stmt = stmt.order_by(Note.updated_at.desc())
     notes = db.session.execute(stmt).scalars().all()
     return render_template("notes/index.html", notes=notes, form=form)
 
