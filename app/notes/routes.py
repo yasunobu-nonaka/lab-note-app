@@ -1,5 +1,6 @@
 from flask import render_template, url_for, request, redirect, flash
 from flask_login import login_required, current_user
+from sqlalchemy import func
 
 from ..models import db, Note
 from ..utils import md_to_html
@@ -12,17 +13,39 @@ from ..forms.notes import NewNoteForm, EditNoteForm, SearchForm
 @login_required
 def notes_index():
     form = SearchForm(request.args)
+
+    page = request.args.get("page", 1, type=int)
+    per_page = 5
+
+    # 基本クエリ
     stmt = db.select(Note).where(Note.user_id == current_user.id)
 
+    # 検索ワードがある場合
     if form.q.data:
         keyword = f"%{form.q.data.strip()}%"
         stmt = stmt.where(Note.title.ilike(keyword))
 
-    stmt = stmt.order_by(Note.updated_at.desc())
+    # 総件数取得
+    count_stmt = db.select(func.count()).select_from(stmt.subquery())
+    total = db.session.scalar(count_stmt)
+
+    stmt = (
+        stmt.order_by(Note.updated_at.desc())
+        .limit(per_page)
+        .offset((page - 1) * per_page)
+    )
 
     notes = db.session.scalars(stmt).all()
 
-    return render_template("notes/index.html", notes=notes, form=form)
+    total_pages = (total + per_page - 1) // per_page
+
+    return render_template(
+        "notes/index.html",
+        notes=notes,
+        form=form,
+        page=page,
+        total_pages=total_pages,
+    )
 
 
 @notes_bp.route("/new", methods=["GET", "POST"])
