@@ -79,7 +79,9 @@ def test_too_long_title_note_creation_rejected(logged_in_client):
 
 def test_notes_index_shows_note(logged_in_client, app):
     with app.app_context():
-        user = db.session.execute(db.select(User)).scalar_one_or_none()
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -99,7 +101,9 @@ def test_notes_index_shows_note(logged_in_client, app):
 #############################################
 def test_note_edit(logged_in_client, app):
     with app.app_context():
-        user = db.session.execute(db.select(User)).scalar_one_or_none()
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -134,7 +138,9 @@ def test_note_edit(logged_in_client, app):
 #############################################
 def test_delete_note(logged_in_client, app):
     with app.app_context():
-        user = db.session.execute(db.select(User)).scalar_one_or_none()
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -226,7 +232,9 @@ def test_cannot_accesss_others_note_detail(logged_in_client, app):
 
 def test_note_search(logged_in_client, app):
     with app.app_context():
-        user = db.session.execute(db.select(User)).scalar_one_or_none()
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         note_1 = Note(
             user_id=user.id,
