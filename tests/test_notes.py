@@ -79,7 +79,9 @@ def test_too_long_title_note_creation_rejected(logged_in_client):
 
 def test_notes_index_shows_note(logged_in_client, app):
     with app.app_context():
-        user = db.session.execute(db.select(User)).scalar_one_or_none()
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -99,7 +101,9 @@ def test_notes_index_shows_note(logged_in_client, app):
 #############################################
 def test_note_edit(logged_in_client, app):
     with app.app_context():
-        user = db.session.execute(db.select(User)).scalar_one_or_none()
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -134,7 +138,9 @@ def test_note_edit(logged_in_client, app):
 #############################################
 def test_delete_note(logged_in_client, app):
     with app.app_context():
-        user = db.session.execute(db.select(User)).scalar_one_or_none()
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
 
         note = Note(
             user_id=user.id, title="テストノート", content_md="ノートの内容"
@@ -217,3 +223,78 @@ def test_cannot_accesss_others_note_detail(logged_in_client, app):
     assert res.status_code == 404
     assert "Not Found" in res.text
     assert "ユーザーB作成ノート" not in res.text
+
+
+#############################################
+# test for note search
+#############################################
+
+
+def test_note_search(logged_in_client, app):
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
+
+        note_1 = Note(
+            user_id=user.id,
+            title="cooking",
+            content_md="cooking is fun",
+        )
+
+        note_2 = Note(
+            user_id=user.id,
+            title="fishing",
+            content_md="fishing is fun",
+        )
+
+        note_3 = Note(
+            user_id=user.id,
+            title="driving",
+            content_md="driving is fun",
+        )
+
+        db.session.add_all([note_1, note_2, note_3])
+        db.session.commit()
+
+    res = logged_in_client.get("/notes/?q=fishing", follow_redirects=True)
+
+    assert res.status_code == 200
+    assert "fishing" in res.text
+    assert "cooking" not in res.text
+    assert "driving" not in res.text
+
+
+def test_note_search_no_search_word(logged_in_client, app):
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
+
+        note_1 = Note(
+            user_id=user.id,
+            title="cooking",
+            content_md="cooking is fun",
+        )
+
+        note_2 = Note(
+            user_id=user.id,
+            title="fishing",
+            content_md="fishing is fun",
+        )
+
+        note_3 = Note(
+            user_id=user.id,
+            title="driving",
+            content_md="driving is fun",
+        )
+
+        db.session.add_all([note_1, note_2, note_3])
+        db.session.commit()
+
+    res = logged_in_client.get("/notes/?q=", follow_redirects=True)
+
+    assert res.status_code == 200
+    assert "fishing" in res.text
+    assert "cooking" in res.text
+    assert "driving" in res.text
