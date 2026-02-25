@@ -54,15 +54,13 @@ def new_note():
     form = NewNoteForm()
 
     if form.validate_on_submit():
-        user_id = current_user.id
-        title = form.title.data
-        content_md = form.content_md.data
-
-        note = Note(user_id=user_id, title=title, content_md=content_md)
+        note = Note(
+            user_id=current_user.id,
+            title=form.title.data,
+            content_md=form.content_md.data,
+        )
         db.session.add(note)
         db.session.commit()
-
-        html_text = md_to_html(note.content_md)
 
         flash("ノートを作成しました。", "success")
 
