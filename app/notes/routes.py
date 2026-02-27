@@ -2,7 +2,7 @@ from flask import render_template, url_for, request, redirect, flash
 from flask_login import login_required, current_user
 from sqlalchemy import func
 
-from ..models import db, Note
+from ..models import db, Note, Tag
 from ..utils import md_to_html
 from . import notes_bp
 
@@ -59,6 +59,25 @@ def new_note():
             title=form.title.data,
             content_md=form.content_md.data,
         )
+
+        for field in form.tags:
+            tagname = (field.tagname.data or "").strip()
+
+            if not tagname:
+                continue
+
+            # タグが既に存在するかをチェック
+            tag = db.session.scalar(
+                db.select(Tag).filter_by(
+                    user_id=current_user.id, tagname=tagname
+                )
+            )
+
+            if not tag:
+                tag = Tag(user_id=current_user.id, tagname=tagname)
+
+            note.tags.append(tag)
+
         db.session.add(note)
         db.session.commit()
 

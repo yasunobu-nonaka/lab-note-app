@@ -1,6 +1,20 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField
+from wtforms import (
+    StringField,
+    TextAreaField,
+    FormField,
+    FieldList,
+    SubmitField,
+)
 from wtforms.validators import DataRequired, Length, Optional
+
+
+class TagForm(FlaskForm):
+    tagname = StringField(
+        "タグ名（空欄可）",
+        validators=[Optional()],
+        render_kw={"placeholder": "タグ名"},
+    )
 
 
 class NewNoteForm(FlaskForm):
@@ -19,6 +33,7 @@ class NewNoteForm(FlaskForm):
             "placeholder": "Markdownで実験内容を記述してください",
         },
     )
+    tags = FieldList(FormField(TagForm), min_entries=1, max_entries=10)
     submit = SubmitField("保存")
 
 
