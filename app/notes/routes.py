@@ -107,7 +107,30 @@ def edit_note(note_id):
     form = EditNoteForm(obj=note)
 
     if form.validate_on_submit():
-        form.populate_obj(note)  # フォームの値をモデルへ反映する
+        note.title = form.title.data
+        note.content_md = form.content_md.data
+
+        # 中間テーブルのノートとタグのリレーションを一度削除
+        note.tags.clear()
+
+        for field in form.tags:
+            tagname = (field.tagname.data or "").strip()  # 前後の空白を削除
+
+            if not tagname:
+                continue
+
+            # タグが既に存在するかをチェック
+            tag = db.session.scalar(
+                db.select(Tag).filter_by(
+                    user_id=current_user.id, tagname=tagname
+                )
+            )
+
+            # 見つからない => まだ作られていないタグ => 新規追加
+            if not tag:
+                tag = Tag(user_id=current_user.id, tagname=tagname)
+
+            note.tags.append(tag)
 
         db.session.commit()
         flash("ノートを更新しました。", "info")
