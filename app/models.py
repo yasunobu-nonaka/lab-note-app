@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from sqlalchemy import String, Text, DateTime, ForeignKey
+from sqlalchemy import String, Text, DateTime, ForeignKey, Table
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from typing import List
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -29,6 +31,7 @@ class User(UserMixin, db.Model):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
     notes: Mapped[List["Note"]] = relationship(back_populates="user")
+    tags: Mapped[List["Tag"]] = relationship(back_populates="user")
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -40,7 +43,17 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
 
+notes_tags = Table(
+    "notes_tags",
+    Base.metadata,
+    db.Column("note_id", ForeignKey("notes.id"), primary_key=True),
+    db.Column("tag_id", ForeignKey("tags.id"), primary_key=True),
+)
+
+
 class Note(db.Model):
+    __tablename__ = "notes"
+
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
@@ -54,6 +67,26 @@ class Note(db.Model):
     )
 
     user: Mapped["User"] = relationship(back_populates="notes")
+    tags: Mapped[List[Tag]] = relationship(
+        secondary=notes_tags, back_populates="notes"
+    )
 
     def __repr__(self):
         return f"<Note {self.id} user={self.user_id}>"
+
+
+class Tag(db.Model):
+    __tablename__ = "tags"
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "tagname"),
+        db.Index("ix_tag_user", "user_id"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    tagname: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    user: Mapped["User"] = relationship(back_populates="tags")
+    notes: Mapped[List[Note]] = relationship(
+        secondary=notes_tags, back_populates="tags"
+    )
