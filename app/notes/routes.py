@@ -1,6 +1,7 @@
 from flask import render_template, url_for, request, redirect, flash
 from flask_login import login_required, current_user
 from sqlalchemy import func
+from sqlalchemy.orm import selectinload
 
 from ..models import db, Note, Tag
 from ..utils import md_to_html
@@ -94,8 +95,10 @@ def new_note():
 @notes_bp.route("/<int:note_id>")
 @login_required
 def show_note(note_id):
-    note = db.first_or_404(
-        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
+    note = db.one_or_404(
+        db.select(Note)
+        .filter_by(id=note_id, user_id=current_user.id)
+        .options(selectinload(Note.tags))
     )
     html_text = md_to_html(note.content_md)
     return render_template("notes/show.html", note=note, html_text=html_text)
