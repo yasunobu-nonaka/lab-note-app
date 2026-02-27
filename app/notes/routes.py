@@ -14,13 +14,13 @@ from ..forms.notes import NewNoteForm, EditNoteForm, SearchForm
 def notes_index():
     form = SearchForm(request.args)
 
-    page = request.args.get("page", 1, type=int)
-    per_page = 5
+    page = request.args.get("page", 1, type=int)  # ページ番号
+    per_page = 5  # 1ページあたりの表示数
 
-    # 基本クエリ
+    # 基本クエリ（ユーザーIDによる検索）
     stmt = db.select(Note).where(Note.user_id == current_user.id)
 
-    # 検索ワードがある場合
+    # 検索ワードがある場合 => 検索ワードを含むノートのみ取得
     if form.q.data:
         keyword = f"%{form.q.data.strip()}%"
         stmt = stmt.where(Note.title.ilike(keyword))
@@ -29,6 +29,7 @@ def notes_index():
     count_stmt = db.select(func.count()).select_from(stmt.subquery())
     total = db.session.scalar(count_stmt)
 
+    # 現在のページに該当するノートを取得
     stmt = (
         stmt.order_by(Note.updated_at.desc())
         .limit(per_page)
@@ -37,6 +38,7 @@ def notes_index():
 
     notes = db.session.scalars(stmt).all()
 
+    # 必要なページ数を計算
     total_pages = (total + per_page - 1) // per_page
 
     return render_template(
@@ -61,7 +63,7 @@ def new_note():
         )
 
         for field in form.tags:
-            tagname = (field.tagname.data or "").strip()
+            tagname = (field.tagname.data or "").strip()  # 前後の空白を削除
 
             if not tagname:
                 continue
@@ -73,6 +75,7 @@ def new_note():
                 )
             )
 
+            # 見つからない => まだ作られていないタグ => 新規追加
             if not tag:
                 tag = Tag(user_id=current_user.id, tagname=tagname)
 
@@ -130,6 +133,7 @@ def edit_note(note_id):
             if not tag:
                 tag = Tag(user_id=current_user.id, tagname=tagname)
 
+            # 中間テーブルにリレーションを再度追加
             note.tags.append(tag)
 
         db.session.commit()

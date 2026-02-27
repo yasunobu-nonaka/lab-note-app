@@ -30,6 +30,7 @@ class User(UserMixin, db.Model):
     )
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
+    # リレーション
     notes: Mapped[List["Note"]] = relationship(back_populates="user")
     tags: Mapped[List["Tag"]] = relationship(back_populates="user")
 
@@ -37,12 +38,15 @@ class User(UserMixin, db.Model):
         return f"<User {self.username}>"
 
     def set_password(self, password):
+        # パスワードをハッシュ化
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        # パスワードをハッシュ化して比較
         return check_password_hash(self.password_hash, password)
 
 
+# ノートとタグの関係（Many To Many）
 notes_tags = Table(
     "notes_tags",
     Base.metadata,
@@ -66,7 +70,10 @@ class Note(db.Model):
         DateTime, default=now_jst, onupdate=now_jst, index=True
     )
 
+    # リレーション
+    # ユーザー：1対多
     user: Mapped["User"] = relationship(back_populates="notes")
+    # タグ：多対多
     tags: Mapped[List[Tag]] = relationship(
         secondary=notes_tags, back_populates="notes"
     )
@@ -78,6 +85,7 @@ class Note(db.Model):
 class Tag(db.Model):
     __tablename__ = "tags"
     __table_args__ = (
+        # 重複タグを防止（同一ユーザー）
         db.UniqueConstraint("user_id", "tagname"),
         db.Index("ix_tag_user", "user_id"),
     )
@@ -86,7 +94,10 @@ class Tag(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     tagname: Mapped[str] = mapped_column(String(20), nullable=False)
 
+    # リレーション
+    # ユーザー：1対多
     user: Mapped["User"] = relationship(back_populates="tags")
+    # ノート：多対多
     notes: Mapped[List[Note]] = relationship(
         secondary=notes_tags, back_populates="tags"
     )

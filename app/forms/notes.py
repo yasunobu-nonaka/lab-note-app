@@ -9,10 +9,11 @@ from wtforms import (
 from wtforms.validators import DataRequired, Length, Optional
 
 
+# タグ入力フォーム（サブフォーム）
 class TagForm(FlaskForm):
     tagname = StringField(
         "タグ名（空欄可）",
-        validators=[Optional()],
+        validators=[Optional()],  # タグ入力なしを許容するためOptional
         render_kw={"placeholder": "タグ名"},
     )
 
@@ -33,6 +34,8 @@ class NewNoteForm(FlaskForm):
             "placeholder": "Markdownで実験内容を記述してください",
         },
     )
+
+    # タグを複数入力できるフォーム
     tags = FieldList(FormField(TagForm), min_entries=1, max_entries=10)
     submit = SubmitField("保存")
 
@@ -42,13 +45,15 @@ class EditNoteForm(FlaskForm):
         "タイトル", validators=[DataRequired(message="タイトルは必須です")]
     )
     content_md = TextAreaField("ノート (Markdown)", render_kw={"rows": 20})
+
+    # タグを複数入力できるフォーム
     tags = FieldList(FormField(TagForm), min_entries=1, max_entries=10)
     submit = SubmitField("保存")
 
 
 class SearchForm(FlaskForm):
     class Meta:
-        csrf = False
+        csrf = False  # getリクエストのためcsrfトークンを生成しない
 
     q = StringField(
         "タイトル検索",

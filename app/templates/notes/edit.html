@@ -190,6 +190,7 @@
       rebindRemoveButtons();
     });
 
+    // フォームの削除機能を付与
     function rebindRemoveButtons() {
       document.querySelectorAll(".remove-tag").forEach((button) => {
         button.onclick = function () {
@@ -199,6 +200,7 @@
       });
     }
 
+    // フォームのidとnameのインデックスを再設定
     function reindex() {
       const entries = document.querySelectorAll(".tag-entry");
 

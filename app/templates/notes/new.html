@@ -95,6 +95,7 @@
   <!-- DOMPurify -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
 
+  <!-- Scripts for markdown preview -->
   <script>
     const content_md = document.getElementById("content_md");
     const preview = document.getElementById("preview");
@@ -122,6 +123,7 @@
       });
     }
 
+    // ===== プレビュー更新 =====
     function updatePreview() {
       const markdown = content_md.value;
 
@@ -169,18 +171,18 @@
     preview.addEventListener("scroll", syncPreviewToEditor);
   </script>
 
+  <!-- Sripts for tag form -->
   <script>
     const container = document.getElementById("tag-forms");
 
     document.getElementById("add-tag").addEventListener("click", function () {
       const template = document.getElementById("tag-template").innerHTML;
-      // const index = container.children.length;
-      // const newForm = template.replace(/__index__/g, index);
       container.insertAdjacentHTML("beforeend", template);
       reindex();
       rebindRemoveButtons();
     });
 
+    // フォームの削除機能を付与
     function rebindRemoveButtons() {
       document.querySelectorAll(".remove-tag").forEach((button) => {
         button.onclick = function () {
@@ -190,6 +192,7 @@
       });
     }
 
+    // フォームのidとnameのインデックスを再設定
     function reindex() {
       const entries = document.querySelectorAll(".tag-entry");
 
