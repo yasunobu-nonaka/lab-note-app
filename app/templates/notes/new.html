@@ -70,6 +70,7 @@
           </div>
         {% endfor %}
       </div>
+      <p id="tag-form-error" style="color:red;"></p>
     </div>
 
     {{ form.submit(class="bg-white shadow p-2 mt-4 rounded") }}
@@ -174,8 +175,21 @@
   <!-- Sripts for tag form -->
   <script>
     const container = document.getElementById("tag-forms");
+    const addButton = document.getElementById("add-tag");
+    const message = document.getElementById("tag-form-error");
 
-    document.getElementById("add-tag").addEventListener("click", function () {
+    addButton.addEventListener("click", function () {
+      // タグフォームの数
+      const count = container.children.length;
+
+      // タグフォームの数が10個を超えないようにする
+      if (count >= 10) {
+        message.textContent = "タグは10個まで追加できます。";
+        return;
+      }
+
+      message.textContent = "";
+
       const template = document.getElementById("tag-template").innerHTML;
       container.insertAdjacentHTML("beforeend", template);
       reindex();
@@ -188,6 +202,7 @@
         button.onclick = function () {
           this.parentElement.remove();
           reindex();
+          message.textContent = "";
         };
       });
     }
