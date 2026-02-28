@@ -77,8 +77,14 @@
 
   <!-- 追加用テンプレート -->
   <div id="tag-template" style="display:none">
-    <div class="tag-entry" class="block">
-      {{ form.tags[-1].tagname(class="w-3/4 md:w-1/2 lg:w-3/8 bg-white p-2 mb-2 mr-2") }}
+    <div class="tag-entry block">
+      <input
+        class="w-3/4 md:w-1/2 lg:w-3/8 bg-white p-2 mb-2 mr-2"
+        id="tags-__index__-tagname"
+        name="tags-__index__-tagname"
+        placeholder="タグ名"
+        type="text"
+      />
       <button type="button" class="remove-tag bg-gray-300 rounded px-2 py-1">✕</button>
     </div>
   </div>
