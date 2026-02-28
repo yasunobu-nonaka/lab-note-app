@@ -35,6 +35,7 @@ def notes_index():
         stmt.order_by(Note.updated_at.desc())
         .limit(per_page)
         .offset((page - 1) * per_page)
+        .options(selectinload(Note.tags))
     )
 
     notes = db.session.scalars(stmt).all()

@@ -6,6 +6,7 @@
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-3xl font-bold">ノート一覧</h1>
     <div class="ml-auto flex gap-7 items-center">
+      <!-- 検索フォーム -->
       <form action="{{ url_for('notes.notes_index') }}" method="get">
         {{ form.q.label }}
         {{ form.q(class="bg-white border rounded p-1") }}
@@ -19,11 +20,20 @@
 
   <hr />
 
+  <!-- ノートの一覧表示 -->
   {% if notes %}
     <ul class="my-4">
       {% for note in notes %}
-        <li class="mb-2 p-2 text-xl bg-gray-200 shadow rounded">
+        <li class="flex justify-between items-center mb-2 p-2 text-xl bg-gray-200 shadow rounded">
           <a href="{{ url_for('notes.show_note', note_id=note.id) }}">{{ note.title }}</a>
+          <ul class="ml-auto flex gap-4 items-center">
+            {% for tag in note.tags[:5] %}
+              <li class="text-base bg-lime-200 rounded-2xl px-4 py-1">{{ tag.tagname }}</li>
+            {% endfor %}
+            {% if note.tags|length > 5 %}
+              <li class="text-base">...</li>
+            {% endif %}
+          </ul>
         </li>
       {% endfor %}
     </ul>
