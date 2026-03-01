@@ -10,10 +10,7 @@
       <form action="{{ url_for('notes.notes_index') }}" method="get">
         {{ form.q.label }}
         {{ form.q(class="bg-white border rounded p-1") }}
-        {{ form.submit(class="border rounded p-1") }}
-      </form>
-      <form action="{{ url_for('notes.notes_index') }}" method="get">
-        <select name="tag" onchange="this.form.submit()">
+        <select name="tag">
           <option value="">すべて</option>
           {% for tag in tags %}
             <option
@@ -24,6 +21,7 @@
             </option>
           {% endfor %}
         </select>
+        {{ form.submit(class="border rounded p-1") }}
       </form>
       <a href="{{ url_for('notes.new_note') }}" class="text-xl  bg-gray-300 rounded px-3 py-2">
         + 新規ノート作成
@@ -62,7 +60,7 @@
     <div class="mt-6 flex gap-2">
       {% for p in range(1, total_pages + 1) %}
         <a
-          href="{{ url_for('notes.notes_index', page=p, q=form.q.data) }}"
+          href="{{ url_for('notes.notes_index', page=p, q=form.q.data, tag=selected_tag) }}"
           class="px-3 py-1 border rounded
                  {% if p == page %}bg-gray-400{% else %}bg-gray-200{% endif %}"
         >
