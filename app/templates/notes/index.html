@@ -12,6 +12,19 @@
         {{ form.q(class="bg-white border rounded p-1") }}
         {{ form.submit(class="border rounded p-1") }}
       </form>
+      <form action="{{ url_for('notes.notes_index') }}" method="get">
+        <select name="tag" onchange="this.form.submit()">
+          <option value="">すべて</option>
+          {% for tag in tags %}
+            <option
+              value="{{ tag.tagname }}"
+              {% if selected_tag == tag.tagname %}selected{% endif %}
+            >
+              {{ tag.tagname }}
+            </option>
+          {% endfor %}
+        </select>
+      </form>
       <a href="{{ url_for('notes.new_note') }}" class="text-xl  bg-gray-300 rounded px-3 py-2">
         + 新規ノート作成
       </a>

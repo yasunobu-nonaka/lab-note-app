@@ -16,10 +16,15 @@ def notes_index():
     form = SearchForm(request.args)
 
     page = request.args.get("page", 1, type=int)  # ページ番号
+    tag_name = request.args.get("tag")
     per_page = 5  # 1ページあたりの表示数
 
     # 基本クエリ（ユーザーIDによる検索）
     stmt = db.select(Note).where(Note.user_id == current_user.id)
+
+    # タグがある場合 => タグと紐づくノートのみ取得
+    if tag_name:
+        stmt = stmt.join(Note.tags).where(Tag.tagname == tag_name)
 
     # 検索ワードがある場合 => 検索ワードを含むノートのみ取得
     if form.q.data:
@@ -40,6 +45,10 @@ def notes_index():
 
     notes = db.session.scalars(stmt).all()
 
+    tags = db.session.scalars(
+        db.select(Tag).where(Tag.user_id == current_user.id)
+    ).all()
+
     # 必要なページ数を計算
     total_pages = (total + per_page - 1) // per_page
 
@@ -48,6 +57,8 @@ def notes_index():
         notes=notes,
         form=form,
         page=page,
+        tags=tags,
+        selected_tag=tag_name,
         total_pages=total_pages,
     )
 
