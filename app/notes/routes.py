@@ -32,7 +32,7 @@ def notes_index():
         stmt = stmt.where(Note.title.ilike(keyword))
 
     # 総件数取得
-    count_stmt = db.select(func.count()).select_from(stmt.subquery())
+    count_stmt = stmt.with_only_columns(func.count()).order_by(None)
     total = db.session.scalar(count_stmt)
 
     # 現在のページに該当するノートを取得
