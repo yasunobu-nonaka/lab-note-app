@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
     TextAreaField,
+    SelectField,
     FormField,
     FieldList,
     SubmitField,
@@ -56,7 +57,9 @@ class SearchForm(FlaskForm):
         csrf = False  # getリクエストのためcsrfトークンを生成しない
 
     q = StringField(
-        "タイトル検索",
+        "タイトル",
         validators=[Optional(), Length(max=200)],
+        render_kw={"placeholder": "キーワードを入力"},
     )
+    tag = SelectField("タグ", choices=[], validators=[Optional()])
     submit = SubmitField("検索")

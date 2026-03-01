@@ -45,11 +45,17 @@ def notes_index():
 
     notes = db.session.scalars(stmt).all()
 
+    # タグの一覧を取得
     tags = db.session.scalars(
         db.select(Tag)
         .where(Tag.user_id == current_user.id)
         .order_by(Tag.tagname.asc())
     ).all()
+
+    # タグ絞り込みのドロップダウンリストに値を設定
+    form.tag.choices = [("", "すべて")] + [
+        (tag.tagname, tag.tagname) for tag in tags
+    ]
 
     # 必要なページ数を計算
     total_pages = (total + per_page - 1) // per_page

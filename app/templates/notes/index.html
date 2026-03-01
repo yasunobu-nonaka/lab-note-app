@@ -3,30 +3,26 @@
 {% block title %}ノート一覧{% endblock %}
 
 {% block content %}
+  <h1 class="text-3xl font-bold mb-4">ノート一覧</h1>
   <div class="flex justify-between items-center mb-4">
-    <h1 class="text-3xl font-bold">ノート一覧</h1>
-    <div class="ml-auto flex gap-7 items-center">
-      <!-- 検索フォーム -->
-      <form action="{{ url_for('notes.notes_index') }}" method="get">
+    <a href="{{ url_for('notes.new_note') }}" class="text-xl  bg-gray-300 rounded px-3 py-2">
+      + 新規ノート作成
+    </a>
+    <!-- 検索フォーム -->
+    <form action="{{ url_for('notes.notes_index') }}" method="get" class="flex gap-3 items-center">
+      <span class="text-lg font-medium">絞り込み</span>
+      <!-- 検索：Wキーワード -->
+      <div>
         {{ form.q.label }}
         {{ form.q(class="bg-white border rounded p-1") }}
-        <select name="tag">
-          <option value="">すべて</option>
-          {% for tag in tags %}
-            <option
-              value="{{ tag.tagname }}"
-              {% if selected_tag == tag.tagname %}selected{% endif %}
-            >
-              {{ tag.tagname }}
-            </option>
-          {% endfor %}
-        </select>
-        {{ form.submit(class="border rounded p-1") }}
-      </form>
-      <a href="{{ url_for('notes.new_note') }}" class="text-xl  bg-gray-300 rounded px-3 py-2">
-        + 新規ノート作成
-      </a>
-    </div>
+      </div>
+      <!-- 検索：タグ -->
+      <div>
+        {{ form.tag.label }}
+        {{ form.tag(class="bg-white border rounded p-1") }}
+      </div>
+      {{ form.submit(class="border rounded p-1") }}
+    </form>
   </div>
 
   <hr />
