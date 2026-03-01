@@ -136,28 +136,44 @@ def edit_note(note_id):
         note.title = form.title.data
         note.content_md = form.content_md.data
 
-        # 中間テーブルのノートとタグのリレーションを一度削除
-        note.tags.clear()
+        # 変更後のタグ
+        new_tag_names = {
+            (field.tagname.data or "").strip()  # 前後の空白を削除
+            for field in form.tags
+            if (field.tagname.data or "").strip()
+        }
 
-        for field in form.tags:
-            tagname = (field.tagname.data or "").strip()  # 前後の空白を削除
+        # 変更前のタグ
+        current_tag_names = {tag.tagname for tag in note.tags}
 
-            if not tagname:
-                continue
+        # 追加すべきタグ
+        to_add = new_tag_names - current_tag_names
 
-            # タグが既に存在するかをチェック
+        # 削除すべきタグ
+        to_remove = current_tag_names - new_tag_names
+
+        # 追加処理
+        # タグが既に存在するかをチェック
+        for tagname in to_add:
             tag = db.session.scalar(
                 db.select(Tag).filter_by(
                     user_id=current_user.id, tagname=tagname
                 )
             )
-
             # 見つからない => まだ作られていないタグ => 新規追加
             if not tag:
                 tag = Tag(user_id=current_user.id, tagname=tagname)
-
-            # 中間テーブルにリレーションを再度追加
+                db.session.add(tag)
             note.tags.append(tag)
+
+        # 削除処理
+        for tag in list(note.tags):
+            if tag.tagname in to_remove:
+                note.tags.remove(tag)
+
+                # そのタグが他ノートでも使われているか確認
+                if not tag.notes:
+                    db.session.delete(tag)
 
         db.session.commit()
         flash("ノートを更新しました。", "info")
