@@ -46,7 +46,9 @@ def notes_index():
     notes = db.session.scalars(stmt).all()
 
     tags = db.session.scalars(
-        db.select(Tag).where(Tag.user_id == current_user.id)
+        db.select(Tag)
+        .where(Tag.user_id == current_user.id)
+        .order_by(Tag.tagname.asc())
     ).all()
 
     # 必要なページ数を計算
