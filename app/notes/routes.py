@@ -24,7 +24,7 @@ def notes_index():
 
     # タグがある場合 => タグと紐づくノートのみ取得
     if tag_name:
-        stmt = stmt.join(Note.tags).where(Tag.tagname == tag_name)
+        stmt = stmt.join(Note.tags).where(Tag.tagname == tag_name).distinct()
 
     # 検索ワードがある場合 => 検索ワードを含むノートのみ取得
     if form.q.data:
