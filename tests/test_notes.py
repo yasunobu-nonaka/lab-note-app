@@ -1,13 +1,10 @@
-from app.models import db, User, Note
+from app.models import db, User, Note, Tag
 
 
-def request_note_creation(client, title, content_md):
+def request_note_creation(client, title, content_md, tag0=None):
     res = client.post(
         "/notes/new",
-        data={
-            "title": title,
-            "content_md": content_md,
-        },
+        data={"title": title, "content_md": content_md, "tags-0-tagname": tag0},
         follow_redirects=True,
     )
 
@@ -39,23 +36,48 @@ def test_notes_index(logged_in_client):
 
 def test_note_creation(logged_in_client, app):
     res = request_note_creation(
-        logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３"
+        logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３", "試験"
     )
     assert len(res.history) == 1
     assert res.status_code == 200
     assert "ノートを作成しました。" in res.text
     assert "テストノート" in res.text
+    assert "要素１" in res.text
+    assert "試験" in res.text
 
     with app.app_context():
         note = db.session.execute(
             db.select(Note).filter_by(title="テストノート")
         ).scalar_one_or_none()
         assert note is not None
+        assert note.title == "テストノート"
+        assert note.content_md == "- 要素１\n- 要素２\n- 要素３"
+        assert note.tags[0].tagname == "試験"
+
+
+def test_note_creation_without_tag(logged_in_client, app):
+    res = request_note_creation(
+        logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３"
+    )
+    assert len(res.history) == 1
+    assert res.status_code == 200
+    assert "ノートを作成しました。" in res.text
+    assert "テストノート" in res.text
+    assert "要素１" in res.text
+
+    with app.app_context():
+        note = db.session.execute(
+            db.select(Note).filter_by(title="テストノート")
+        ).scalar_one_or_none()
+        assert note is not None
+        assert note.title == "テストノート"
+        assert note.content_md == "- 要素１\n- 要素２\n- 要素３"
+        assert note.tags == []
 
 
 def test_no_title_note_creation_rejected(logged_in_client):
     res = request_note_creation(
-        logged_in_client, "", "- 要素１\n- 要素２\n- 要素３"
+        logged_in_client, "", "- 要素１\n- 要素２\n- 要素３", "試験"
     )
     assert len(res.history) == 0
     assert res.status_code == 200
@@ -69,6 +91,7 @@ def test_too_long_title_note_creation_rejected(logged_in_client):
         logged_in_client,
         "note_title" * 20 + "1",
         "- 要素１\n- 要素２\n- 要素３",
+        "試験",
     )
     assert len(res.history) == 0
     assert res.status_code == 200
@@ -87,6 +110,9 @@ def test_notes_index_shows_note(logged_in_client, app):
             user_id=user.id, title="テストノート", content_md="ノートの内容"
         )
 
+        tag = Tag(user_id=user.id, tagname="テストタグ")
+        note.tags.append(tag)
+
         db.session.add(note)
         db.session.commit()
 
@@ -94,6 +120,7 @@ def test_notes_index_shows_note(logged_in_client, app):
 
     assert res.status_code == 200
     assert "テストノート" in res.text
+    assert "テストタグ" in res.text
 
 
 #############################################
@@ -109,6 +136,9 @@ def test_note_edit(logged_in_client, app):
             user_id=user.id, title="テストノート", content_md="ノートの内容"
         )
 
+        tag = Tag(user_id=user.id, tagname="テストタグ")
+        note.tags.append(tag)
+
         db.session.add(note)
         db.session.commit()
 
@@ -119,6 +149,8 @@ def test_note_edit(logged_in_client, app):
         data={
             "title": "テストノート（日付）",
             "content_md": "おもしろいノートの内容",
+            "tags-0-tagname": "更新テストタグ",
+            "tags-1-tagname": "追加テストタグ",
         },
         follow_redirects=True,
     )
@@ -126,15 +158,19 @@ def test_note_edit(logged_in_client, app):
     assert res.status_code == 200
     assert "ノートを更新しました。" in res.text
     assert "テストノート（日付）" in res.text
+    assert "更新テストタグ" in res.text
+    assert "追加テストタグ" in res.text
 
     with app.app_context():
         note = db.session.get(Note, note_id)
         assert note.title == "テストノート（日付）"
         assert note.content_md == "おもしろいノートの内容"
+        assert note.tags[0].tagname == "更新テストタグ"
+        assert note.tags[1].tagname == "追加テストタグ"
 
 
 #############################################
-# test for delete note
+# test for delete note or tag
 #############################################
 def test_delete_note(logged_in_client, app):
     with app.app_context():
@@ -162,6 +198,46 @@ def test_delete_note(logged_in_client, app):
     with app.app_context():
         note = db.session.get(Note, note_id)
         assert note is None
+
+
+def test_delete_tag(logged_in_client, app):
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
+
+        note = Note(
+            user_id=user.id, title="テストノート", content_md="ノートの内容"
+        )
+
+        tag = Tag(user_id=user.id, tagname="テストタグ")
+        note.tags.append(tag)
+
+        db.session.add(note)
+        db.session.commit()
+
+        note_id = note.id
+
+    res = logged_in_client.post(
+        f"/notes/{note_id}/edit",
+        data={
+            "title": "テストノート（日付）",
+            "content_md": "おもしろいノートの内容",
+            "tags-0-tagname": None,
+        },
+        follow_redirects=True,
+    )
+    assert len(res.history) == 1
+    assert res.status_code == 200
+    assert "ノートを更新しました。" in res.text
+    assert "テストノート（日付）" in res.text
+    assert "テストタグ" not in res.text
+
+    with app.app_context():
+        note = db.session.get(Note, note_id)
+        assert note.title == "テストノート（日付）"
+        assert note.content_md == "おもしろいノートの内容"
+        assert note.tags == []
 
 
 #############################################
