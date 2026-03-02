@@ -212,8 +212,10 @@ def test_delete_tag(logged_in_client, app):
             user_id=user.id, title="テストノート", content_md="ノートの内容"
         )
 
-        tag = Tag(user_id=user.id, tagname="テストタグ")
-        note.tags.append(tag)
+        tag_1 = Tag(user_id=user.id, tagname="テストタグ１")
+        tag_2 = Tag(user_id=user.id, tagname="テストタグ２")
+        note.tags.append(tag_1)
+        note.tags.append(tag_2)
 
         db.session.add(note)
         db.session.commit()
@@ -225,7 +227,8 @@ def test_delete_tag(logged_in_client, app):
         data={
             "title": "テストノート（日付）",
             "content_md": "おもしろいノートの内容",
-            "tags-0-tagname": None,
+            "tags-0-tagname": "テストタグ１",
+            "tags-1-tagname": None,
         },
         follow_redirects=True,
     )
@@ -233,13 +236,25 @@ def test_delete_tag(logged_in_client, app):
     assert res.status_code == 200
     assert "ノートを更新しました。" in res.text
     assert "テストノート（日付）" in res.text
-    assert "テストタグ" not in res.text
+    assert "テストタグ１" in res.text
+    assert "テストタグ２" not in res.text
 
+    # データベースに保存されているノートを確認
     with app.app_context():
         note = db.session.get(Note, note_id)
         assert note.title == "テストノート（日付）"
         assert note.content_md == "おもしろいノートの内容"
-        assert note.tags == []
+
+        # タグが削除していないもののみになっているか確認
+        tag_names = {tag.tagname for tag in note.tags}
+        assert tag_names == {"テストタグ１"}
+
+    # タグフィルターのリストからタグがなくなっていることを確認
+    res = logged_in_client.get("/notes/", follow_redirects=True)
+    assert re.search(r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text)
+    assert not re.search(
+        r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text
+    )
 
 
 #############################################
