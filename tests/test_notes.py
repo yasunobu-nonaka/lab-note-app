@@ -1,13 +1,11 @@
-from app.models import db, User, Note
+from app.models import db, User, Note, Tag
+import re
 
 
-def request_note_creation(client, title, content_md):
+def request_note_creation(client, title, content_md, tag0=None):
     res = client.post(
         "/notes/new",
-        data={
-            "title": title,
-            "content_md": content_md,
-        },
+        data={"title": title, "content_md": content_md, "tags-0-tagname": tag0},
         follow_redirects=True,
     )
 
@@ -39,23 +37,48 @@ def test_notes_index(logged_in_client):
 
 def test_note_creation(logged_in_client, app):
     res = request_note_creation(
-        logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３"
+        logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３", "試験"
     )
     assert len(res.history) == 1
     assert res.status_code == 200
     assert "ノートを作成しました。" in res.text
     assert "テストノート" in res.text
+    assert "要素１" in res.text
+    assert "試験" in res.text
 
     with app.app_context():
         note = db.session.execute(
             db.select(Note).filter_by(title="テストノート")
         ).scalar_one_or_none()
         assert note is not None
+        assert note.title == "テストノート"
+        assert note.content_md == "- 要素１\n- 要素２\n- 要素３"
+        assert note.tags[0].tagname == "試験"
+
+
+def test_note_creation_without_tag(logged_in_client, app):
+    res = request_note_creation(
+        logged_in_client, "テストノート", "- 要素１\n- 要素２\n- 要素３"
+    )
+    assert len(res.history) == 1
+    assert res.status_code == 200
+    assert "ノートを作成しました。" in res.text
+    assert "テストノート" in res.text
+    assert "要素１" in res.text
+
+    with app.app_context():
+        note = db.session.execute(
+            db.select(Note).filter_by(title="テストノート")
+        ).scalar_one_or_none()
+        assert note is not None
+        assert note.title == "テストノート"
+        assert note.content_md == "- 要素１\n- 要素２\n- 要素３"
+        assert note.tags == []
 
 
 def test_no_title_note_creation_rejected(logged_in_client):
     res = request_note_creation(
-        logged_in_client, "", "- 要素１\n- 要素２\n- 要素３"
+        logged_in_client, "", "- 要素１\n- 要素２\n- 要素３", "試験"
     )
     assert len(res.history) == 0
     assert res.status_code == 200
@@ -69,6 +92,7 @@ def test_too_long_title_note_creation_rejected(logged_in_client):
         logged_in_client,
         "note_title" * 20 + "1",
         "- 要素１\n- 要素２\n- 要素３",
+        "試験",
     )
     assert len(res.history) == 0
     assert res.status_code == 200
@@ -87,13 +111,18 @@ def test_notes_index_shows_note(logged_in_client, app):
             user_id=user.id, title="テストノート", content_md="ノートの内容"
         )
 
+        tag = Tag(user_id=user.id, tagname="テストタグ")
+        note.tags.append(tag)
+
         db.session.add(note)
         db.session.commit()
 
+    # 一覧に作成したノートとタグが表示されるか確認
     res = logged_in_client.get("/notes/", follow_redirects=True)
 
     assert res.status_code == 200
     assert "テストノート" in res.text
+    assert "テストタグ" in res.text
 
 
 #############################################
@@ -109,16 +138,22 @@ def test_note_edit(logged_in_client, app):
             user_id=user.id, title="テストノート", content_md="ノートの内容"
         )
 
+        tag = Tag(user_id=user.id, tagname="テストタグ")
+        note.tags.append(tag)
+
         db.session.add(note)
         db.session.commit()
 
         note_id = note.id
 
+    # タグの編集と追加を実行
     res = logged_in_client.post(
         f"/notes/{note_id}/edit",
         data={
             "title": "テストノート（日付）",
             "content_md": "おもしろいノートの内容",
+            "tags-0-tagname": "更新テストタグ",  # 編集
+            "tags-1-tagname": "追加テストタグ",  # 追加
         },
         follow_redirects=True,
     )
@@ -126,15 +161,21 @@ def test_note_edit(logged_in_client, app):
     assert res.status_code == 200
     assert "ノートを更新しました。" in res.text
     assert "テストノート（日付）" in res.text
+    assert "更新テストタグ" in res.text
+    assert "追加テストタグ" in res.text
 
     with app.app_context():
         note = db.session.get(Note, note_id)
         assert note.title == "テストノート（日付）"
         assert note.content_md == "おもしろいノートの内容"
 
+        # 編集・追加したタグが存在しているかをタグ順不同で確認
+        tag_names = {tag.tagname for tag in note.tags}
+        assert tag_names == {"更新テストタグ", "追加テストタグ"}
+
 
 #############################################
-# test for delete note
+# test for delete note or tag
 #############################################
 def test_delete_note(logged_in_client, app):
     with app.app_context():
@@ -164,6 +205,61 @@ def test_delete_note(logged_in_client, app):
         assert note is None
 
 
+def test_delete_tag(logged_in_client, app):
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
+
+        note = Note(
+            user_id=user.id, title="テストノート", content_md="ノートの内容"
+        )
+
+        tag_1 = Tag(user_id=user.id, tagname="テストタグ１")
+        tag_2 = Tag(user_id=user.id, tagname="テストタグ２")
+        note.tags.append(tag_1)
+        note.tags.append(tag_2)
+
+        db.session.add(note)
+        db.session.commit()
+
+        note_id = note.id
+
+    res = logged_in_client.post(
+        f"/notes/{note_id}/edit",
+        data={
+            "title": "テストノート（日付）",
+            "content_md": "おもしろいノートの内容",
+            "tags-0-tagname": "テストタグ１",
+            "tags-1-tagname": None,  # タグを１つ削除する
+        },
+        follow_redirects=True,
+    )
+    assert len(res.history) == 1
+    assert res.status_code == 200
+    assert "ノートを更新しました。" in res.text
+    assert "テストノート（日付）" in res.text
+    assert "テストタグ１" in res.text
+    assert "テストタグ２" not in res.text
+
+    # データベースに保存されているノートを確認
+    with app.app_context():
+        note = db.session.get(Note, note_id)
+        assert note.title == "テストノート（日付）"
+        assert note.content_md == "おもしろいノートの内容"
+
+        # タグが削除していないもののみになっているか確認
+        tag_names = {tag.tagname for tag in note.tags}
+        assert tag_names == {"テストタグ１"}
+
+    # タグフィルターのリストからタグがなくなっていることを確認
+    res = logged_in_client.get("/notes/", follow_redirects=True)
+    assert re.search(r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text)
+    assert not re.search(
+        r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text
+    )
+
+
 #############################################
 # test for note authorization
 #############################################
@@ -171,21 +267,25 @@ def test_delete_note(logged_in_client, app):
 
 def test_notes_index_does_not_show_others_notes(logged_in_client, app):
     with app.app_context():
+        # ユーザーAを取得
         user_a = db.session.execute(
             db.select(User).filter_by(username="testuser")
         ).scalar_one_or_none()
 
+        # ユーザーBを作成
         user_b = User(username="testuser2")
         user_b.set_password("password21234")
         db.session.add(user_b)
         db.session.commit()
 
+        # ユーザーAのノートを作成
         note_a = Note(
             user_id=user_a.id,
             title="ユーザーA作成ノート",
             content_md="ユーザーAが作成したノート",
         )
 
+        # ユーザーBのノートを作成
         note_b = Note(
             user_id=user_b.id,
             title="ユーザーB作成ノート",
@@ -194,6 +294,7 @@ def test_notes_index_does_not_show_others_notes(logged_in_client, app):
         db.session.add_all([note_a, note_b])
         db.session.commit()
 
+    # ユーザーAのノートは表示されるが、ユーザーBのノートは表示されないことを確認
     res = logged_in_client.get("/notes/")
 
     assert res.status_code == 200
@@ -203,11 +304,13 @@ def test_notes_index_does_not_show_others_notes(logged_in_client, app):
 
 def test_cannot_accesss_others_note_detail(logged_in_client, app):
     with app.app_context():
+        # ユーザーBを作成
         user_b = User(username="testuser2")
         user_b.set_password("password21234")
         db.session.add(user_b)
         db.session.commit()
 
+        # ユーザーBのノートを作成
         note_b = Note(
             user_id=user_b.id,
             title="ユーザーB作成ノート",
@@ -218,6 +321,7 @@ def test_cannot_accesss_others_note_detail(logged_in_client, app):
 
         note_b_id = note_b.id
 
+    # ユーザーBのノートの詳細画面を開くことを試みて失敗することを確認
     res = logged_in_client.get(f"/notes/{note_b_id}")
 
     assert res.status_code == 404
@@ -236,6 +340,7 @@ def test_note_search(logged_in_client, app):
             db.select(User).filter_by(username="testuser")
         ).scalar_one_or_none()
 
+        # 検索用に異なるノートを３つ作成
         note_1 = Note(
             user_id=user.id,
             title="cooking",
@@ -257,6 +362,7 @@ def test_note_search(logged_in_client, app):
         db.session.add_all([note_1, note_2, note_3])
         db.session.commit()
 
+    # fishingのノートを検索してそれだけが表示されることを確認
     res = logged_in_client.get("/notes/?q=fishing", follow_redirects=True)
 
     assert res.status_code == 200
@@ -292,9 +398,79 @@ def test_note_search_no_search_word(logged_in_client, app):
         db.session.add_all([note_1, note_2, note_3])
         db.session.commit()
 
+    # 検索語を空欄にした場合すべてのノートが表示されることを確認
     res = logged_in_client.get("/notes/?q=", follow_redirects=True)
 
     assert res.status_code == 200
     assert "fishing" in res.text
     assert "cooking" in res.text
     assert "driving" in res.text
+
+
+def test_tag_filter(logged_in_client, app):
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
+
+        note_1 = Note(
+            user_id=user.id,
+            title="cooking",
+            content_md="cooking is fun",
+        )
+
+        note_2 = Note(
+            user_id=user.id,
+            title="fishing",
+            content_md="fishing is fun",
+        )
+
+        note_3 = Note(
+            user_id=user.id,
+            title="driving",
+            content_md="driving is fun",
+        )
+
+        # cookingとfishingにテストタグ１を、drivingにテストタグ２を付与
+        tag_1 = Tag(user_id=user.id, tagname="テストタグ１")
+        tag_2 = Tag(user_id=user.id, tagname="テストタグ２")
+        note_1.tags.append(tag_1)
+        note_2.tags.append(tag_1)
+        note_3.tags.append(tag_2)
+
+        db.session.add_all([note_1, note_2, note_3])
+        db.session.commit()
+
+    # テストタグ１で絞り込み
+    res = logged_in_client.get(
+        "/notes/?q=&tag=テストタグ１", follow_redirects=True
+    )
+
+    # cookingとfishingは表示され、drivingは表示されないことを確認
+    assert res.status_code == 200
+    assert "cooking" in res.text
+    assert "fishing" in res.text
+    assert "driving" not in res.text
+
+    # ノート一覧に表示されているタグの中にテストタグ１は存在し、テストタグ２は存在しないことを確認
+    assert re.search(r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text)
+    assert not re.search(
+        r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text
+    )
+
+    # テストタグ２で絞り込み
+    res = logged_in_client.get(
+        "/notes/?q=&tag=テストタグ２", follow_redirects=True
+    )
+
+    # cookingとfishingは表示されず、drivingは表示されることを確認
+    assert res.status_code == 200
+    assert "cooking" not in res.text
+    assert "fishing" not in res.text
+    assert "driving" in res.text
+
+    # ノート一覧に表示されているタグの中にテストタグ１は存在せず、テストタグ２は存在することを確認
+    assert not re.search(
+        r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text
+    )
+    assert re.search(r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text)

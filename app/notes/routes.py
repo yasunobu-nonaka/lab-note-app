@@ -1,8 +1,9 @@
 from flask import render_template, url_for, request, redirect, flash
 from flask_login import login_required, current_user
 from sqlalchemy import func
+from sqlalchemy.orm import selectinload
 
-from ..models import db, Note
+from ..models import db, Note, Tag
 from ..utils import md_to_html
 from . import notes_bp
 
@@ -14,29 +15,49 @@ from ..forms.notes import NewNoteForm, EditNoteForm, SearchForm
 def notes_index():
     form = SearchForm(request.args)
 
-    page = request.args.get("page", 1, type=int)
-    per_page = 5
+    page = request.args.get("page", 1, type=int)  # ページ番号
+    tag_name = request.args.get("tag")
+    per_page = 5  # 1ページあたりの表示数
 
-    # 基本クエリ
+    # 基本クエリ（ユーザーIDによる検索）
     stmt = db.select(Note).where(Note.user_id == current_user.id)
 
-    # 検索ワードがある場合
+    # タグがある場合 => タグと紐づくノートのみ取得
+    if tag_name:
+        stmt = stmt.join(Note.tags).where(Tag.tagname == tag_name).distinct()
+
+    # 検索ワードがある場合 => 検索ワードを含むノートのみ取得
     if form.q.data:
         keyword = f"%{form.q.data.strip()}%"
         stmt = stmt.where(Note.title.ilike(keyword))
 
     # 総件数取得
-    count_stmt = db.select(func.count()).select_from(stmt.subquery())
+    count_stmt = stmt.with_only_columns(func.count()).order_by(None)
     total = db.session.scalar(count_stmt)
 
+    # 現在のページに該当するノートを取得
     stmt = (
         stmt.order_by(Note.updated_at.desc())
         .limit(per_page)
         .offset((page - 1) * per_page)
+        .options(selectinload(Note.tags))
     )
 
     notes = db.session.scalars(stmt).all()
 
+    # タグの一覧を取得
+    tags = db.session.scalars(
+        db.select(Tag)
+        .where(Tag.user_id == current_user.id)
+        .order_by(Tag.tagname.asc())
+    ).all()
+
+    # タグ絞り込みのドロップダウンリストに値を設定
+    form.tag.choices = [("", "すべて")] + [
+        (tag.tagname, tag.tagname) for tag in tags
+    ]
+
+    # 必要なページ数を計算
     total_pages = (total + per_page - 1) // per_page
 
     return render_template(
@@ -44,6 +65,8 @@ def notes_index():
         notes=notes,
         form=form,
         page=page,
+        tags=tags,
+        selected_tag=tag_name,
         total_pages=total_pages,
     )
 
@@ -54,15 +77,33 @@ def new_note():
     form = NewNoteForm()
 
     if form.validate_on_submit():
-        user_id = current_user.id
-        title = form.title.data
-        content_md = form.content_md.data
+        note = Note(
+            user_id=current_user.id,
+            title=form.title.data,
+            content_md=form.content_md.data,
+        )
 
-        note = Note(user_id=user_id, title=title, content_md=content_md)
+        for field in form.tags:
+            tagname = (field.tagname.data or "").strip()  # 前後の空白を削除
+
+            if not tagname:
+                continue
+
+            # タグが既に存在するかをチェック
+            tag = db.session.scalar(
+                db.select(Tag).filter_by(
+                    user_id=current_user.id, tagname=tagname
+                )
+            )
+
+            # 見つからない => まだ作られていないタグ => 新規追加
+            if not tag:
+                tag = Tag(user_id=current_user.id, tagname=tagname)
+
+            note.tags.append(tag)
+
         db.session.add(note)
         db.session.commit()
-
-        html_text = md_to_html(note.content_md)
 
         flash("ノートを作成しました。", "success")
 
@@ -74,8 +115,10 @@ def new_note():
 @notes_bp.route("/<int:note_id>")
 @login_required
 def show_note(note_id):
-    note = db.first_or_404(
-        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
+    note = db.one_or_404(
+        db.select(Note)
+        .filter_by(id=note_id, user_id=current_user.id)
+        .options(selectinload(Note.tags))
     )
     html_text = md_to_html(note.content_md)
     return render_template("notes/show.html", note=note, html_text=html_text)
@@ -90,7 +133,47 @@ def edit_note(note_id):
     form = EditNoteForm(obj=note)
 
     if form.validate_on_submit():
-        form.populate_obj(note)  # フォームの値をモデルへ反映する
+        note.title = form.title.data
+        note.content_md = form.content_md.data
+
+        # 変更後のタグ
+        new_tag_names = {
+            (field.tagname.data or "").strip()  # 前後の空白を削除
+            for field in form.tags
+            if (field.tagname.data or "").strip()
+        }
+
+        # 変更前のタグ
+        current_tag_names = {tag.tagname for tag in note.tags}
+
+        # 追加すべきタグ
+        to_add = new_tag_names - current_tag_names
+
+        # 削除すべきタグ
+        to_remove = current_tag_names - new_tag_names
+
+        # 追加処理
+        # タグが既に存在するかをチェック
+        for tagname in to_add:
+            tag = db.session.scalar(
+                db.select(Tag).filter_by(
+                    user_id=current_user.id, tagname=tagname
+                )
+            )
+            # 見つからない => まだ作られていないタグ => 新規追加
+            if not tag:
+                tag = Tag(user_id=current_user.id, tagname=tagname)
+                db.session.add(tag)
+            note.tags.append(tag)
+
+        # 削除処理
+        for tag in list(note.tags):
+            if tag.tagname in to_remove:
+                note.tags.remove(tag)
+
+                # そのタグが他ノートでも使われているか確認
+                if not tag.notes:
+                    db.session.delete(tag)
 
         db.session.commit()
         flash("ノートを更新しました。", "info")
