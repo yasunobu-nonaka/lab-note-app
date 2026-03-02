@@ -166,8 +166,9 @@ def test_note_edit(logged_in_client, app):
         note = db.session.get(Note, note_id)
         assert note.title == "テストノート（日付）"
         assert note.content_md == "おもしろいノートの内容"
-        assert note.tags[0].tagname == "更新テストタグ"
-        assert note.tags[1].tagname == "追加テストタグ"
+
+        tag_names = {tag.tagname for tag in note.tags}
+        assert tag_names == {"更新テストタグ", "追加テストタグ"}
 
 
 #############################################
