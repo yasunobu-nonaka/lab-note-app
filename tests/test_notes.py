@@ -1,4 +1,5 @@
 from app.models import db, User, Note, Tag
+import re
 
 
 def request_note_creation(client, title, content_md, tag0=None):
@@ -374,3 +375,63 @@ def test_note_search_no_search_word(logged_in_client, app):
     assert "fishing" in res.text
     assert "cooking" in res.text
     assert "driving" in res.text
+
+
+def test_tag_filter(logged_in_client, app):
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
+
+        note_1 = Note(
+            user_id=user.id,
+            title="cooking",
+            content_md="cooking is fun",
+        )
+
+        note_2 = Note(
+            user_id=user.id,
+            title="fishing",
+            content_md="fishing is fun",
+        )
+
+        note_3 = Note(
+            user_id=user.id,
+            title="driving",
+            content_md="driving is fun",
+        )
+
+        tag_1 = Tag(user_id=user.id, tagname="テストタグ１")
+        tag_2 = Tag(user_id=user.id, tagname="テストタグ２")
+        note_1.tags.append(tag_1)
+        note_2.tags.append(tag_1)
+        note_3.tags.append(tag_2)
+
+        db.session.add_all([note_1, note_2, note_3])
+        db.session.commit()
+
+    res = logged_in_client.get(
+        "/notes/?q=&tag=テストタグ１", follow_redirects=True
+    )
+
+    assert res.status_code == 200
+    assert "cooking" in res.text
+    assert "fishing" in res.text
+    assert re.search(r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text)
+    assert "driving" not in res.text
+    assert not re.search(
+        r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text
+    )
+
+    res = logged_in_client.get(
+        "/notes/?q=&tag=テストタグ２", follow_redirects=True
+    )
+
+    assert res.status_code == 200
+    assert "cooking" not in res.text
+    assert "fishing" not in res.text
+    assert not re.search(
+        r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text
+    )
+    assert "driving" in res.text
+    assert re.search(r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text)
