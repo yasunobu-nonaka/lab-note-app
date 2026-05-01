@@ -2,38 +2,21 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
-import os
 
-from .models import db, User
-from .auth import auth_bp
-from .notes import notes_bp
+from app.models import db, User
+from app.auth import auth_bp
+from app.notes import notes_bp
+from app.config import config
 
 migrate = Migrate()
 csrf = CSRFProtect()
 
 
-def create_app(config_name="local"):
-    app = Flask(__name__, instance_relative_config=True)
+def create_app(config_name="development"):
+    app = Flask(__name__)
 
-    if config_name == "testing":
-        app.config.from_mapping(
-            SECRET_KEY="test-secret",
-            SQLALCHEMY_DATABASE_URI="sqlite:///:memory:",
-            SQLALCHEMY_TRACK_MODIFICATIONS=False,
-            TESTING=True,
-            WTF_CSRF_ENABLED=False,
-        )
-    else:
-        app.config.from_mapping(
-            SECRET_KEY=os.environ.get("SECRET_KEY", "fallback-secret"),
-            SQLALCHEMY_DATABASE_URI=os.environ.get(
-                "DATABASE_URL", "sqlite:///notes.db"
-            ),
-            SQLALCHEMY_TRACK_MODIFICATIONS=False,
-            WTF_CSRF_SECRET_KEY=os.environ.get(
-                "WTF_CSRF_SECRET_KEY", "fallback-secret"
-            ),
-        )
+    # load configuration from config class
+    app.config.from_object(config[config_name])
 
     db.init_app(app)
     migrate.init_app(app, db)
