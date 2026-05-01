@@ -1,9 +1,7 @@
 Flask
 
 # display markdown in browser
-markdown
 bleach
-pymdown-extensions
 markdown-it-py
 mdit-py-plugins
 
