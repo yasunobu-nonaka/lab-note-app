@@ -6,6 +6,7 @@ markdown-it-py
 mdit-py-plugins
 
 # CRUD
+psycopg2-binary
 Flask-SQLAlchemy
 Flask-Migrate
 

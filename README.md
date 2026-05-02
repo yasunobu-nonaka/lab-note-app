@@ -48,6 +48,11 @@ pip install -r requirements-dev.txt
 pip install -r requirements.txt
 ```
 4. prepare .env file (use .env.sample is a reference)
+5. create database user and database
+6. run migration
+```
+flask db upgrade
+```
 5. run application
 ```
 flask run
