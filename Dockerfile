@@ -6,6 +6,8 @@ RUN apt-get install -y gcc
 ENV USERNAME=lab-note-user
 ENV USERGROUP=lab-note-group
 ENV WORKING_DIR=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR ${WORKING_DIR}
 
@@ -19,7 +21,7 @@ RUN chown -R ${USERNAME}:${USERGROUP} ${WORKING_DIR}
 RUN chmod -R u=rwx,g=rwx ${WORKING_DIR}
 
 USER ${USERNAME}
-ENV PATH "$PATH:/home/${USERNAME}/.local/bin"
+ENV PATH="$PATH:/home/${USERNAME}/.local/bin"
 
 EXPOSE 5000
 
