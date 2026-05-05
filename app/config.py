@@ -1,4 +1,8 @@
 import os
+from urllib.parse import quote_plus
+
+# パスワード内の特殊文字をエスケープする
+password = quote_plus(os.environ.get("POSTGRES_PASSWORD"))
 
 
 class Config:
@@ -8,7 +12,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URL", "sqlite:///notes.db")
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('POSTGRES_USER')}:{password}@db:5432/{os.environ.get('POSTGRES_DB')}"
     WTF_CSRF_SECRET_KEY = os.environ.get("WTF_CSRF_SECRET_KEY", "fallback-secret")
 
 
@@ -27,7 +31,7 @@ class ProductionConfig(Config):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('POSTGRES_USER')}:{password}@db:5432/{os.environ.get('POSTGRES_DB')}"
 
 
 config = {
