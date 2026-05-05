@@ -1,7 +1,8 @@
 FROM python:3.13-slim
 
-RUN apt-get -q -y update
+RUN apt-get -q -y update && apt-get -y upgrade
 RUN apt-get install -y gcc
+RUN apt-get install -y netcat-openbsd
 
 ENV USERNAME=lab-note-user
 ENV USERGROUP=lab-note-group
@@ -25,4 +26,5 @@ ENV PATH="$PATH:/home/${USERNAME}/.local/bin"
 
 EXPOSE 5000
 
+ENTRYPOINT [ "/app/entrypoint.sh" ]
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "--workers", "4", "run:app"]
