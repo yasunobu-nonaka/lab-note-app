@@ -17,7 +17,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
 
-RUN groupadd ${USERGROUP} && useradd -g ${USERGROUP} ${USERNAME}
+RUN groupadd ${USERGROUP} && useradd -m -g ${USERGROUP} ${USERNAME}
 RUN chown -R ${USERNAME}:${USERGROUP} ${WORKING_DIR}
 RUN chmod -R u=rwx,g=rwx ${WORKING_DIR}
 
