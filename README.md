@@ -27,33 +27,10 @@ Packages
 - markdown-it-py, mdit-py-plugins...convert markdown to HTML.
 
 ## installation
-1. clone repository
-2. create virtual environment and activate
+1. (If not downloaded) download Docker Desktop
+2. clone repository
+3. add .env file in the root directory. use .env.sample as reference.
+4. run containers from compose file
 ```
-# step1. create virtual env
-python3 -m venv .venv
-
-# step2. activate virtual env
-# mac/linux
-source .venv/bin/activate
-# windows(command prompt)
-.venv\Scripts\activate.bat
-# windows(PowerShell)
-.venv\Scripts\Activate.ps1
-```
-
-3. install necessary packages
-```
-pip install -r requirements-dev.txt
-pip install -r requirements.txt
-```
-4. prepare .env file (use .env.sample is a reference)
-5. create database user and database
-6. run migration
-```
-flask db upgrade
-```
-5. run application
-```
-flask run
+docker compose -f compose.prod.yaml up --build
 ```
