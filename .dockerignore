@@ -6,5 +6,7 @@ pytest_cache/
 .gitignore
 
 Dockerfile
+Dockerfile.dev
+Dockerfile.prod
 compose.yaml
 .dockerignore
