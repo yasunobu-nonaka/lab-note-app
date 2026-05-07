@@ -3,15 +3,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: lab-note-app
+    container_name: flask-lab-note-app
     restart: always
-    ports:
-      - "${APP_PORT}:5000"
+    expose:
+      - "5000"
     env_file:
       - ./.env
     depends_on:
       db:
         condition: service_healthy
+
+  nginx:
+    build: ./nginx
+    container_name: "nginx"
+    ports:
+      - 1337:80
+    depends_on:
+      - web
 
   db:
     image: postgres:16
@@ -27,7 +35,6 @@ services:
       timeout: 10s
       retries: 10
       start_period: 10s
-
 
 volumes:
   postgres_data:
