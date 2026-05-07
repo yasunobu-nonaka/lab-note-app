@@ -2,6 +2,7 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.models import db, User
 from app.auth import auth_bp
@@ -14,6 +15,13 @@ csrf = CSRFProtect()
 
 def create_app(config_name="development"):
     app = Flask(__name__)
+
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_for=1,
+        x_proto=1,
+        x_host=1,
+    )
 
     # load configuration from config class
     app.config.from_object(config[config_name])
