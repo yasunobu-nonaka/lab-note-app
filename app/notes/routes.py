@@ -16,20 +16,21 @@ def notes_index():
     form = SearchForm(request.args)
 
     page = request.args.get("page", 1, type=int)  # ページ番号
-    tag_name = request.args.get("tag")
+    query_word = form.q.data  # 絞り込みワード
+    query_tag = form.tag.data  # 絞り込みタグ
     per_page = 5  # 1ページあたりの表示数
 
     # 基本クエリ（ユーザーIDによる検索）
     stmt = db.select(Note).where(Note.user_id == current_user.id)
 
-    # タグがある場合 => タグと紐づくノートのみ取得
-    if tag_name:
-        stmt = stmt.join(Note.tags).where(Tag.tagname == tag_name).distinct()
-
     # 検索ワードがある場合 => 検索ワードを含むノートのみ取得
-    if form.q.data:
-        keyword = f"%{form.q.data.strip()}%"
+    if query_word:
+        keyword = f"%{query_word.strip()}%"
         stmt = stmt.where(Note.title.ilike(keyword))
+
+    # タグがある場合 => タグと紐づくノートのみ取得
+    if query_tag:
+        stmt = stmt.join(Note.tags).where(Tag.tagname == query_tag).distinct()
 
     # 総件数取得
     count_stmt = stmt.with_only_columns(func.count()).order_by(None)
@@ -47,15 +48,11 @@ def notes_index():
 
     # タグの一覧を取得
     tags = db.session.scalars(
-        db.select(Tag)
-        .where(Tag.user_id == current_user.id)
-        .order_by(Tag.tagname.asc())
+        db.select(Tag).where(Tag.user_id == current_user.id).order_by(Tag.tagname.asc())
     ).all()
 
     # タグ絞り込みのドロップダウンリストに値を設定
-    form.tag.choices = [("", "すべて")] + [
-        (tag.tagname, tag.tagname) for tag in tags
-    ]
+    form.tag.choices = [("", "すべて")] + [(tag.tagname, tag.tagname) for tag in tags]
 
     # 必要なページ数を計算
     total_pages = (total + per_page - 1) // per_page
@@ -66,7 +63,7 @@ def notes_index():
         form=form,
         page=page,
         tags=tags,
-        selected_tag=tag_name,
+        selected_tag=query_tag,
         total_pages=total_pages,
     )
 
@@ -91,9 +88,7 @@ def new_note():
 
             # タグが既に存在するかをチェック
             tag = db.session.scalar(
-                db.select(Tag).filter_by(
-                    user_id=current_user.id, tagname=tagname
-                )
+                db.select(Tag).filter_by(user_id=current_user.id, tagname=tagname)
             )
 
             # 見つからない => まだ作られていないタグ => 新規追加
@@ -156,9 +151,7 @@ def edit_note(note_id):
         # タグが既に存在するかをチェック
         for tagname in to_add:
             tag = db.session.scalar(
-                db.select(Tag).filter_by(
-                    user_id=current_user.id, tagname=tagname
-                )
+                db.select(Tag).filter_by(user_id=current_user.id, tagname=tagname)
             )
             # 見つからない => まだ作られていないタグ => 新規追加
             if not tag:
