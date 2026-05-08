@@ -5,7 +5,7 @@
 {% block content %}
   <h1 class="text-3xl font-bold mb-4">ノート一覧</h1>
   <div class="flex flex-col gap-7 sm:flex sm:flex-row sm:justify-between sm:items-center sm:gap-4 mb-4">
-    <a href="{{ url_for('notes.new_note') }}" class="text-xl w-fit bg-gray-300 rounded px-3 py-2">
+    <a href="{{ url_for('notes.new_note') }}" class="text-xl w-fit bg-gray-200 rounded-lg px-4 py-3">
       + 新規ノート作成
     </a>
     <!-- 検索フォーム -->
@@ -33,7 +33,7 @@
   {% if notes %}
     <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 my-4">
       {% for note in notes %}
-        <li class="relative mb-2 p-2 text-xl bg-amber-50 border border-amber-200 rounded-sm shadow-sm rotate-[0.2deg] transition overflow-hidden">
+        <li class="relative min-h-80 mb-2 p-2 text-xl bg-amber-50 border border-amber-200 rounded-sm shadow-sm rotate-[0.2deg] transition overflow-hidden">
           <!-- 綴じ部分 -->
           <div class="absolute inset-y-0 left-0 w-6 bg-amber-200"></div>
 
