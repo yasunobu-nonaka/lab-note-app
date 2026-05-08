@@ -4,12 +4,12 @@
 
 {% block content %}
   <h1 class="text-3xl font-bold mb-4">ノート一覧</h1>
-  <div class="flex flex-col gap-7 sm:flex sm:flex-row sm:justify-between sm:items-center sm:gap-4 mb-4">
+  <div class="flex flex-col gap-7 lg:flex lg:flex-row lg:justify-between lg:items-center lg:gap-4 mb-4">
     <a href="{{ url_for('notes.new_note') }}" class="text-xl w-fit bg-gray-200 rounded-lg px-4 py-3">
       + 新規ノート作成
     </a>
     <!-- 検索フォーム -->
-    <form action="{{ url_for('notes.notes_index') }}" method="get" class="flex flex-col gap-4 sm:flex sm:flex-row sm:justify-between sm:items-center">
+    <form action="{{ url_for('notes.notes_index') }}" method="get" class="flex flex-col gap-4 md:flex md:flex-row md:justify-between md:items-center">
       <span class="text-lg font-medium">絞り込み</span>
       <!-- 検索：Wキーワード -->
       <div class="flex gap-3 items-center">
