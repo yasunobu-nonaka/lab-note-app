@@ -29,18 +29,20 @@
 
   <!-- ノートの一覧表示 -->
   {% if notes %}
-    <ul class="my-4">
+    <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 my-4">
       {% for note in notes %}
-        <li class="flex justify-between items-center mb-2 p-2 text-xl bg-gray-200 shadow rounded">
-          <a href="{{ url_for('notes.show_note', note_id=note.id) }}">{{ note.title }}</a>
-          <ul class="ml-auto flex gap-4 items-center">
-            {% for tag in note.tags[:5] %}
-              <li class="text-base bg-lime-200 rounded-2xl px-4 py-1">{{ tag.tagname }}</li>
-            {% endfor %}
-            {% if note.tags|length > 5 %}
-              <li class="text-base">...</li>
-            {% endif %}
-          </ul>
+        <li class="mb-2 p-2 text-xl bg-gray-200 shadow rounded overflow-hidden">
+          <a href="{{ url_for('notes.show_note', note_id=note.id) }}" class="flex flex-col gap-4">
+            <p>{{ note.title }}</p>
+            <ul class="grid md:grid-cols-2 xl:grid-cols-3 gap-4 items-center">
+              {% for tag in note.tags[:5] %}
+                <li class="text-base bg-lime-200 rounded-2xl px-4 py-1">{{ tag.tagname }}</li>
+              {% endfor %}
+              {% if note.tags|length > 5 %}
+                <li class="text-base">...</li>
+              {% endif %}
+            </ul>
+          </a>
         </li>
       {% endfor %}
     </ul>

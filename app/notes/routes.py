@@ -18,7 +18,7 @@ def notes_index():
     page = request.args.get("page", 1, type=int)  # ページ番号
     query_word = form.q.data  # 絞り込みワード
     query_tag = form.tag.data  # 絞り込みタグ
-    per_page = 5  # 1ページあたりの表示数
+    per_page = 16  # 1ページあたりの表示数
 
     # 基本クエリ（ユーザーIDによる検索）
     stmt = db.select(Note).where(Note.user_id == current_user.id)
