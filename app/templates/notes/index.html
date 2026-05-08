@@ -4,24 +4,26 @@
 
 {% block content %}
   <h1 class="text-3xl font-bold mb-4">ノート一覧</h1>
-  <div class="flex justify-between items-center mb-4">
-    <a href="{{ url_for('notes.new_note') }}" class="text-xl  bg-gray-300 rounded px-3 py-2">
+  <div class="flex flex-col gap-7 sm:flex sm:flex-row sm:justify-between sm:items-center sm:gap-4 mb-4">
+    <a href="{{ url_for('notes.new_note') }}" class="text-xl w-fit bg-gray-300 rounded px-3 py-2">
       + 新規ノート作成
     </a>
     <!-- 検索フォーム -->
-    <form action="{{ url_for('notes.notes_index') }}" method="get" class="flex gap-3 items-center">
+    <form action="{{ url_for('notes.notes_index') }}" method="get" class="flex flex-col gap-4 sm:flex sm:flex-row sm:justify-between sm:items-center">
       <span class="text-lg font-medium">絞り込み</span>
       <!-- 検索：Wキーワード -->
-      <div>
-        {{ form.q.label }}
-        {{ form.q(class="bg-white border rounded p-1") }}
+      <div class="flex gap-3 items-center">
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+          {{ form.q.label }}
+          {{ form.q(class="bg-white border rounded p-1") }}
+        </div>
+        <!-- 検索：タグ -->
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+          {{ form.tag.label }}
+          {{ form.tag(class="bg-white border rounded p-1") }}
+        </div>
+        {{ form.submit(class="border rounded p-1") }}
       </div>
-      <!-- 検索：タグ -->
-      <div>
-        {{ form.tag.label }}
-        {{ form.tag(class="bg-white border rounded p-1") }}
-      </div>
-      {{ form.submit(class="border rounded p-1") }}
     </form>
   </div>
 
