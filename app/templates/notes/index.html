@@ -4,24 +4,26 @@
 
 {% block content %}
   <h1 class="text-3xl font-bold mb-4">ノート一覧</h1>
-  <div class="flex justify-between items-center mb-4">
-    <a href="{{ url_for('notes.new_note') }}" class="text-xl  bg-gray-300 rounded px-3 py-2">
+  <div class="flex flex-col gap-7 lg:flex lg:flex-row lg:justify-between lg:items-center lg:gap-4 mb-4">
+    <a href="{{ url_for('notes.new_note') }}" class="text-xl w-fit bg-gray-200 rounded-lg px-4 py-3">
       + 新規ノート作成
     </a>
     <!-- 検索フォーム -->
-    <form action="{{ url_for('notes.notes_index') }}" method="get" class="flex gap-3 items-center">
+    <form action="{{ url_for('notes.notes_index') }}" method="get" class="flex flex-col gap-4 md:flex md:flex-row md:justify-between md:items-center">
       <span class="text-lg font-medium">絞り込み</span>
       <!-- 検索：Wキーワード -->
-      <div>
-        {{ form.q.label }}
-        {{ form.q(class="bg-white border rounded p-1") }}
+      <div class="flex gap-3 items-center">
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+          {{ form.q.label }}
+          {{ form.q(class="bg-white border rounded p-1") }}
+        </div>
+        <!-- 検索：タグ -->
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+          {{ form.tag.label }}
+          {{ form.tag(class="bg-white border rounded p-1") }}
+        </div>
+        {{ form.submit(class="border rounded p-1") }}
       </div>
-      <!-- 検索：タグ -->
-      <div>
-        {{ form.tag.label }}
-        {{ form.tag(class="bg-white border rounded p-1") }}
-      </div>
-      {{ form.submit(class="border rounded p-1") }}
     </form>
   </div>
 
@@ -29,18 +31,35 @@
 
   <!-- ノートの一覧表示 -->
   {% if notes %}
-    <ul class="my-4">
+    <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 my-4">
       {% for note in notes %}
-        <li class="flex justify-between items-center mb-2 p-2 text-xl bg-gray-200 shadow rounded">
-          <a href="{{ url_for('notes.show_note', note_id=note.id) }}">{{ note.title }}</a>
-          <ul class="ml-auto flex gap-4 items-center">
-            {% for tag in note.tags[:5] %}
-              <li class="text-base bg-lime-200 rounded-2xl px-4 py-1">{{ tag.tagname }}</li>
-            {% endfor %}
-            {% if note.tags|length > 5 %}
-              <li class="text-base">...</li>
-            {% endif %}
-          </ul>
+        <li class="note-card relative h-70 text-xl bg-amber-50 border border-amber-200 rounded-sm shadow-sm rotate-[0.2deg] transition overflow-hidden mb-2">
+          <!-- 綴じ部分 -->
+          <a href="{{ url_for('notes.show_note', note_id=note.id) }}" class="block w-full h-full p-2">
+            <div class="absolute inset-y-0 left-0 w-6 bg-amber-200"></div>
+
+            <!-- 横罫線 -->
+            <div class="
+              absolute inset-0
+              bg-[linear-gradient(to_bottom,transparent_31px,#dbeafe_32px)]
+              bg-[length:100%_32px]
+              pointer-events-none
+            ">
+            </div>
+            
+            <div class="relative z-10 pl-7 pr-2 flex flex-col gap-4">
+              <!-- ノートのタイトル -->
+              <p class="font-bold text-stone-800 mb-4">{{ note.title }}</p>
+
+              <!-- ノートのタグ -->
+              <ul class="tag-list flex flex-col gap-4">
+                {% for tag in note.tags %}
+                  <li class="tag-item text-base bg-amber-200 rounded-2xl w-fit px-4 py-1">{{ tag.tagname }}</li>
+                {% endfor %}
+                <li class="badge hidden text-sm px-4 py-1">+0</li>
+              </ul>
+            </div>
+          </a>
         </li>
       {% endfor %}
     </ul>
@@ -65,4 +84,8 @@
       {% endfor %}
     </div>
   {% endif %}
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/adjust-tag-number.js') }}"></script>
 {% endblock %}

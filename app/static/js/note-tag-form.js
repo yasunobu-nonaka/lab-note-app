@@ -8,8 +8,8 @@ addButton.addEventListener("click", function () {
 
     // タグフォームの数が10個を超えないようにする
     if (count >= 10) {
-    message.textContent = "タグは10個まで追加できます。";
-    return;
+        message.textContent = "タグは10個まで追加できます。";
+        return;
     }
 
     message.textContent = "";
@@ -36,10 +36,10 @@ function reindex() {
     const entries = document.querySelectorAll(".tag-entry");
 
     entries.forEach((entry, index) => {
-    const input = entry.querySelector("input");
+        const input = entry.querySelector("input");
 
-    input.name = `tags-${index}-tagname`;
-    input.id = `tags-${index}-tagname`;
+        input.name = `tags-${index}-tagname`;
+        input.id = `tags-${index}-tagname`;
     });
 }
 
