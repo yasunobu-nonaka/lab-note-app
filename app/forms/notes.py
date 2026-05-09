@@ -1,3 +1,4 @@
+from wtforms.form import Form
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
@@ -11,10 +12,13 @@ from wtforms.validators import DataRequired, Length, Optional
 
 
 # タグ入力フォーム（サブフォーム）
-class TagForm(FlaskForm):
+class TagForm(Form):
     tagname = StringField(
         "タグ名（空欄可）",
-        validators=[Optional()],  # タグ入力なしを許容するためOptional
+        validators=[
+            Optional(),  # タグ入力なしを許容するためOptional
+            Length(max=20, message="タグ名は20文字以内で入力してください"),
+        ],
         render_kw={"placeholder": "タグ名"},
     )
 
