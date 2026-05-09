@@ -33,21 +33,21 @@
   {% if notes %}
     <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 my-4">
       {% for note in notes %}
-        <li class="relative min-h-80 mb-2 p-2 text-xl bg-amber-50 border border-amber-200 rounded-sm shadow-sm rotate-[0.2deg] transition overflow-hidden">
+        <li class="relative min-h-80 mb-2 text-xl bg-amber-50 border border-amber-200 rounded-sm shadow-sm rotate-[0.2deg] transition overflow-hidden">
           <!-- 綴じ部分 -->
-          <div class="absolute inset-y-0 left-0 w-6 bg-amber-200"></div>
+          <a href="{{ url_for('notes.show_note', note_id=note.id) }}" class="block w-full h-full p-2">
+            <div class="absolute inset-y-0 left-0 w-6 bg-amber-200"></div>
 
-          <!-- 横罫線 -->
-          <div class="
-            absolute inset-0
-            bg-[linear-gradient(to_bottom,transparent_31px,#dbeafe_32px)]
-            bg-[length:100%_32px]
-            pointer-events-none
-          ">
-          </div>
-          
-          <div class="relative z-10 pl-7 pr-2">
-            <a href="{{ url_for('notes.show_note', note_id=note.id) }}" class="flex flex-col gap-4">
+            <!-- 横罫線 -->
+            <div class="
+              absolute inset-0
+              bg-[linear-gradient(to_bottom,transparent_31px,#dbeafe_32px)]
+              bg-[length:100%_32px]
+              pointer-events-none
+            ">
+            </div>
+            
+            <div class="relative z-10 pl-7 pr-2 flex flex-col gap-4">
               <p class="font-bold text-stone-800 mb-4">{{ note.title }}</p>
               <ul class="flex flex-col gap-4">
                 {% for tag in note.tags[:5] %}
@@ -57,8 +57,8 @@
                   <li class="text-base">...</li>
                 {% endif %}
               </ul>
-            </a>
-          </div>
+            </div>
+          </a>
         </li>
       {% endfor %}
     </ul>
