@@ -47,9 +47,20 @@ class NewNoteForm(FlaskForm):
 
 class EditNoteForm(FlaskForm):
     title = StringField(
-        "タイトル", validators=[DataRequired(message="タイトルは必須です")]
+        "タイトル",
+        validators=[
+            DataRequired(message="タイトルは必須です"),
+            Length(max=200, message="タイトルは200文字以内で入力してください"),
+        ],
+        render_kw={"placeholder": "実験タイトル"},
     )
-    content_md = TextAreaField("ノート (Markdown)", render_kw={"rows": 20})
+    content_md = TextAreaField(
+        "ノート (Markdown)",
+        render_kw={
+            "rows": 20,
+            "placeholder": "Markdownで実験内容を記述してください",
+        },
+    )
 
     # タグを複数入力できるフォーム
     tags = FieldList(FormField(TagForm), min_entries=1, max_entries=10)
