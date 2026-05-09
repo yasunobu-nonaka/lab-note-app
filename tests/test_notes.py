@@ -101,15 +101,27 @@ def test_too_long_title_note_creation_rejected(logged_in_client):
     assert res.request.path == "/notes/new"
 
 
+def test_too_long_tag_note_creation_rejected(logged_in_client):
+    res = request_note_creation(
+        logged_in_client,
+        "note_title",
+        "- 要素１\n- 要素２\n- 要素３",
+        "あいうえおかきくけこさしすせそたちつてとな",
+    )
+    assert len(res.history) == 0
+    assert res.status_code == 200
+    assert "タグ名は20文字以内で入力してください" in res.text
+    assert "新規ノート作成" in res.text
+    assert res.request.path == "/notes/new"
+
+
 def test_notes_index_shows_note(logged_in_client, app):
     with app.app_context():
         user = db.session.execute(
             db.select(User).filter_by(username="testuser")
         ).scalar_one_or_none()
 
-        note = Note(
-            user_id=user.id, title="テストノート", content_md="ノートの内容"
-        )
+        note = Note(user_id=user.id, title="テストノート", content_md="ノートの内容")
 
         tag = Tag(user_id=user.id, tagname="テストタグ")
         note.tags.append(tag)
@@ -134,9 +146,7 @@ def test_note_edit(logged_in_client, app):
             db.select(User).filter_by(username="testuser")
         ).scalar_one_or_none()
 
-        note = Note(
-            user_id=user.id, title="テストノート", content_md="ノートの内容"
-        )
+        note = Note(user_id=user.id, title="テストノート", content_md="ノートの内容")
 
         tag = Tag(user_id=user.id, tagname="テストタグ")
         note.tags.append(tag)
@@ -183,18 +193,14 @@ def test_delete_note(logged_in_client, app):
             db.select(User).filter_by(username="testuser")
         ).scalar_one_or_none()
 
-        note = Note(
-            user_id=user.id, title="テストノート", content_md="ノートの内容"
-        )
+        note = Note(user_id=user.id, title="テストノート", content_md="ノートの内容")
 
         db.session.add(note)
         db.session.commit()
 
         note_id = note.id
 
-    res = logged_in_client.post(
-        f"/notes/{note_id}/delete", follow_redirects=True
-    )
+    res = logged_in_client.post(f"/notes/{note_id}/delete", follow_redirects=True)
 
     assert len(res.history) == 1
     assert res.status_code == 200
@@ -211,9 +217,7 @@ def test_delete_tag(logged_in_client, app):
             db.select(User).filter_by(username="testuser")
         ).scalar_one_or_none()
 
-        note = Note(
-            user_id=user.id, title="テストノート", content_md="ノートの内容"
-        )
+        note = Note(user_id=user.id, title="テストノート", content_md="ノートの内容")
 
         tag_1 = Tag(user_id=user.id, tagname="テストタグ１")
         tag_2 = Tag(user_id=user.id, tagname="テストタグ２")
@@ -255,9 +259,7 @@ def test_delete_tag(logged_in_client, app):
     # タグフィルターのリストからタグがなくなっていることを確認
     res = logged_in_client.get("/notes/", follow_redirects=True)
     assert re.search(r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text)
-    assert not re.search(
-        r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text
-    )
+    assert not re.search(r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text)
 
 
 #############################################
@@ -442,9 +444,7 @@ def test_tag_filter(logged_in_client, app):
         db.session.commit()
 
     # テストタグ１で絞り込み
-    res = logged_in_client.get(
-        "/notes/?q=&tag=テストタグ１", follow_redirects=True
-    )
+    res = logged_in_client.get("/notes/?q=&tag=テストタグ１", follow_redirects=True)
 
     # cookingとfishingは表示され、drivingは表示されないことを確認
     assert res.status_code == 200
@@ -454,14 +454,10 @@ def test_tag_filter(logged_in_client, app):
 
     # ノート一覧に表示されているタグの中にテストタグ１は存在し、テストタグ２は存在しないことを確認
     assert re.search(r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text)
-    assert not re.search(
-        r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text
-    )
+    assert not re.search(r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text)
 
     # テストタグ２で絞り込み
-    res = logged_in_client.get(
-        "/notes/?q=&tag=テストタグ２", follow_redirects=True
-    )
+    res = logged_in_client.get("/notes/?q=&tag=テストタグ２", follow_redirects=True)
 
     # cookingとfishingは表示されず、drivingは表示されることを確認
     assert res.status_code == 200
@@ -470,7 +466,5 @@ def test_tag_filter(logged_in_client, app):
     assert "driving" in res.text
 
     # ノート一覧に表示されているタグの中にテストタグ１は存在せず、テストタグ２は存在することを確認
-    assert not re.search(
-        r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text
-    )
+    assert not re.search(r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text)
     assert re.search(r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text)
