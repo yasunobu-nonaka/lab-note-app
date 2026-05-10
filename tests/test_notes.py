@@ -216,6 +216,40 @@ def test_too_long_title_note_edit_rejected(logged_in_client, app):
     assert res.request.path == f"/notes/{note_id}/edit"
 
 
+def test_too_long_tag_note_edit_rejected(logged_in_client, app):
+    # ノートを作成
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="testuser")
+        ).scalar_one_or_none()
+
+        note = Note(user_id=user.id, title="テストノート", content_md="ノートの内容")
+
+        tag = Tag(user_id=user.id, tagname="テストタグ")
+        note.tags.append(tag)
+
+        db.session.add(note)
+        db.session.commit()
+
+        note_id = note.id
+
+    # タグの編集と追加を実行
+    res = logged_in_client.post(
+        f"/notes/{note_id}/edit",
+        data={
+            "tags-0-tagname": "apple_banana_kiwi_123",
+        },
+        follow_redirects=True,
+    )
+    assert len(res.history) == 0
+    assert res.status_code == 200
+    assert "テストノート" in res.text
+    assert "ノートの内容" in res.text
+    assert "タグ名は20文字以内で入力してください" in res.text
+    assert "ノート編集" in res.text
+    assert res.request.path == f"/notes/{note_id}/edit"
+
+
 #############################################
 # test for delete note or tag
 #############################################
