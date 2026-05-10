@@ -68,6 +68,13 @@
             {{ tagform.tagname(class="w-3/4 md:w-1/2 lg:w-3/8 bg-white rounded border-1 border-solid border-gray-500 p-2 mb-2 mr-2") }}
             <button type="button" class="remove-tag bg-gray-300 rounded px-2 py-1">✕</button>
           </div>
+          {% if tagform.tagname.errors %}
+            <ul class="errors text-red-500">
+              {% for error in tagform.tagname.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         {% endfor %}
       </div>
       <p id="tag-form-error" style="color:red;"></p>
