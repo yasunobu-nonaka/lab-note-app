@@ -38,6 +38,8 @@ class ProductionConfig(Config):
 
     SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('POSTGRES_USER')}:{POSTGRES_PASSWORD}@db:5432/{os.environ.get('POSTGRES_DB')}"
 
+    WTF_CSRF_SECRET_KEY = os.environ.get("WTF_CSRF_SECRET_KEY", "fallback-secret")
+
 
 config = {
     "development": DevelopmentConfig,
