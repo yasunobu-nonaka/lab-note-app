@@ -7,9 +7,7 @@ from conftest import request_register, create_user, request_login
 
 
 def test_register(client, app):
-    res = request_register(
-        client, "shakesan", "oishishake1234", "oishishake1234"
-    )
+    res = request_register(client, "shakesan", "oishishake12", "oishishake12")
     assert res.status_code == 200
 
     with app.app_context():
@@ -19,8 +17,45 @@ def test_register(client, app):
         assert user is not None
 
 
+def test_short_username_register_rejected(client, app):
+    res = request_register(client, "sha", "oishishake1234", "oishishake1234")
+    assert res.status_code == 200
+
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="shakesan")
+        ).scalar_one_or_none()
+        assert user is None
+
+
+def test_too_long_username_register_rejected(client, app):
+    username = "oishishake" * 10 + "x"
+
+    res = request_register(client, username, "oishishake1234", "oishishake1234")
+    assert res.status_code == 200
+
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username=username)
+        ).scalar_one_or_none()
+        assert user is None
+
+
 def test_short_password_register_rejected(client, app):
-    res = request_register(client, "shakesan", "shake1234", "shake1234")
+    res = request_register(client, "shakesan", "shake123456", "shake123456")
+    assert res.status_code == 200
+
+    with app.app_context():
+        user = db.session.execute(
+            db.select(User).filter_by(username="shakesan")
+        ).scalar_one_or_none()
+        assert user is None
+
+
+def test_too_long_password_register_rejected(client, app):
+    password = "shake123" * 8 + "x"
+
+    res = request_register(client, "shakesan", password, password)
     assert res.status_code == 200
 
     with app.app_context():
