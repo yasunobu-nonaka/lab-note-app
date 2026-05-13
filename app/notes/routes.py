@@ -122,9 +122,7 @@ def show_note(note_id):
 @notes_bp.route("/<int:note_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_note(note_id):
-    note = db.first_or_404(
-        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
-    )
+    note = db.one_or_404(db.select(Note).filter_by(id=note_id, user_id=current_user.id))
     form = EditNoteForm(obj=note)
 
     if form.validate_on_submit():
@@ -179,9 +177,7 @@ def edit_note(note_id):
 @notes_bp.route("/<int:note_id>/delete", methods=["POST"])
 @login_required
 def delete_note(note_id):
-    note = db.first_or_404(
-        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
-    )
+    note = db.one_or_404(db.select(Note).filter_by(id=note_id, user_id=current_user.id))
     db.session.delete(note)
     db.session.commit()
 
