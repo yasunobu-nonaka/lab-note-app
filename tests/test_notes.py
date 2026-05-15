@@ -18,13 +18,13 @@ def request_note_creation(client, title, content_md, tag0=None):
 
 
 def test_login_required(client):
-    res = client.get("/notes/")
+    res = client.get("/notes")
     assert res.status_code == 302
     assert "/login" in res.headers["location"]
 
 
 def test_notes_index(logged_in_client):
-    res = logged_in_client.get("/notes/", follow_redirects=True)
+    res = logged_in_client.get("/notes", follow_redirects=True)
     assert res.status_code == 200
     assert "ノート一覧" in res.text
     assert "まだノートがありません。" in res.text
@@ -130,7 +130,7 @@ def test_notes_index_shows_note(logged_in_client, app):
         db.session.commit()
 
     # 一覧に作成したノートとタグが表示されるか確認
-    res = logged_in_client.get("/notes/", follow_redirects=True)
+    res = logged_in_client.get("/notes", follow_redirects=True)
 
     assert res.status_code == 200
     assert "テストノート" in res.text
@@ -323,7 +323,7 @@ def test_delete_tag(logged_in_client, app):
         assert tag_names == {"テストタグ１"}
 
     # タグフィルターのリストからタグがなくなっていることを確認
-    res = logged_in_client.get("/notes/", follow_redirects=True)
+    res = logged_in_client.get("/notes", follow_redirects=True)
     assert re.search(r'<li\s+class="[^"]*">\s*テストタグ１\s*</li>', res.text)
     assert not re.search(r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text)
 
@@ -363,7 +363,7 @@ def test_notes_index_does_not_show_others_notes(logged_in_client, app):
         db.session.commit()
 
     # ユーザーAのノートは表示されるが、ユーザーBのノートは表示されないことを確認
-    res = logged_in_client.get("/notes/")
+    res = logged_in_client.get("/notes")
 
     assert res.status_code == 200
     assert "ユーザーA作成ノート" in res.text
@@ -431,7 +431,7 @@ def test_note_search(logged_in_client, app):
         db.session.commit()
 
     # fishingのノートを検索してそれだけが表示されることを確認
-    res = logged_in_client.get("/notes/?q=fishing", follow_redirects=True)
+    res = logged_in_client.get("/notes?q=fishing", follow_redirects=True)
 
     assert res.status_code == 200
     assert "fishing" in res.text
@@ -467,7 +467,7 @@ def test_note_search_no_search_word(logged_in_client, app):
         db.session.commit()
 
     # 検索語を空欄にした場合すべてのノートが表示されることを確認
-    res = logged_in_client.get("/notes/?q=", follow_redirects=True)
+    res = logged_in_client.get("/notes?q=", follow_redirects=True)
 
     assert res.status_code == 200
     assert "fishing" in res.text
@@ -510,7 +510,7 @@ def test_tag_filter(logged_in_client, app):
         db.session.commit()
 
     # テストタグ１で絞り込み
-    res = logged_in_client.get("/notes/?q=&tag=テストタグ１", follow_redirects=True)
+    res = logged_in_client.get("/notes?q=&tag=テストタグ１", follow_redirects=True)
 
     # cookingとfishingは表示され、drivingは表示されないことを確認
     assert res.status_code == 200
@@ -523,7 +523,7 @@ def test_tag_filter(logged_in_client, app):
     assert not re.search(r'<li\s+class="[^"]*">\s*テストタグ２\s*</li>', res.text)
 
     # テストタグ２で絞り込み
-    res = logged_in_client.get("/notes/?q=&tag=テストタグ２", follow_redirects=True)
+    res = logged_in_client.get("/notes?q=&tag=テストタグ２", follow_redirects=True)
 
     # cookingとfishingは表示されず、drivingは表示されることを確認
     assert res.status_code == 200

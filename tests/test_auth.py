@@ -101,7 +101,7 @@ def test_login(client, app):
     assert len(res.history) == 1
     assert res.status_code == 200
     assert "ログインしました。" in res.text
-    assert res.request.path == "/notes/"
+    assert res.request.path == "/notes"
 
     with client.session_transaction() as session:
         assert "_user_id" in session

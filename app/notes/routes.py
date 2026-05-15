@@ -10,7 +10,7 @@ from . import notes_bp
 from ..forms.notes import NewNoteForm, EditNoteForm, SearchForm
 
 
-@notes_bp.route("/", methods=["GET"])
+@notes_bp.route("", methods=["GET"])
 @login_required
 def notes_index():
     form = SearchForm(request.args)
