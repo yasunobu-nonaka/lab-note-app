@@ -146,11 +146,12 @@ def edit_note(note_id):
         to_remove = current_tag_names - new_tag_names
 
         # 追加処理
-        # タグが既に存在するかをチェック
         for tagname in to_add:
+            # タグが既に存在するかをチェック
             tag = db.session.scalar(
                 db.select(Tag).filter_by(user_id=current_user.id, tagname=tagname)
             )
+
             # 見つからない => まだ作られていないタグ => 新規追加
             if not tag:
                 tag = Tag(user_id=current_user.id, tagname=tagname)
