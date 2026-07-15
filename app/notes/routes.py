@@ -10,7 +10,7 @@ from . import notes_bp
 from ..forms.notes import NewNoteForm, EditNoteForm, SearchForm
 
 
-@notes_bp.route("/", methods=["GET"])
+@notes_bp.route("", methods=["GET"])
 @login_required
 def notes_index():
     form = SearchForm(request.args)
@@ -122,9 +122,7 @@ def show_note(note_id):
 @notes_bp.route("/<int:note_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_note(note_id):
-    note = db.first_or_404(
-        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
-    )
+    note = db.one_or_404(db.select(Note).filter_by(id=note_id, user_id=current_user.id))
     form = EditNoteForm(obj=note)
 
     if form.validate_on_submit():
@@ -148,11 +146,12 @@ def edit_note(note_id):
         to_remove = current_tag_names - new_tag_names
 
         # 追加処理
-        # タグが既に存在するかをチェック
         for tagname in to_add:
+            # タグが既に存在するかをチェック
             tag = db.session.scalar(
                 db.select(Tag).filter_by(user_id=current_user.id, tagname=tagname)
             )
+
             # 見つからない => まだ作られていないタグ => 新規追加
             if not tag:
                 tag = Tag(user_id=current_user.id, tagname=tagname)
@@ -179,9 +178,7 @@ def edit_note(note_id):
 @notes_bp.route("/<int:note_id>/delete", methods=["POST"])
 @login_required
 def delete_note(note_id):
-    note = db.first_or_404(
-        db.select(Note).filter_by(id=note_id, user_id=current_user.id)
-    )
+    note = db.one_or_404(db.select(Note).filter_by(id=note_id, user_id=current_user.id))
     db.session.delete(note)
     db.session.commit()
 

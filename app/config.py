@@ -20,7 +20,7 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///test.db"
     WTF_CSRF_ENABLED = False
 
 
@@ -37,6 +37,8 @@ class ProductionConfig(Config):
     POSTGRES_PASSWORD = quote_plus(os.environ.get("POSTGRES_PASSWORD"))
 
     SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('POSTGRES_USER')}:{POSTGRES_PASSWORD}@db:5432/{os.environ.get('POSTGRES_DB')}"
+
+    WTF_CSRF_SECRET_KEY = os.environ.get("WTF_CSRF_SECRET_KEY", "fallback-secret")
 
 
 config = {

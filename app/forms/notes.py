@@ -28,12 +28,16 @@ class NewNoteForm(FlaskForm):
         "タイトル",
         validators=[
             DataRequired(message="タイトルは必須です"),
-            Length(max=200, message="タイトルは200文字以内で入力してください"),
+            Length(min=1, max=200, message="タイトルは200文字以内で入力してください"),
         ],
         render_kw={"placeholder": "実験タイトル"},
     )
     content_md = TextAreaField(
         "ノート (Markdown)",
+        validators=[
+            DataRequired(message="本文は必須です"),
+            Length(min=1, message="本文を入力してください"),
+        ],
         render_kw={
             "rows": 20,
             "placeholder": "Markdownで実験内容を記述してください",
@@ -50,12 +54,16 @@ class EditNoteForm(FlaskForm):
         "タイトル",
         validators=[
             DataRequired(message="タイトルは必須です"),
-            Length(max=200, message="タイトルは200文字以内で入力してください"),
+            Length(min=1, max=200, message="タイトルは200文字以内で入力してください"),
         ],
         render_kw={"placeholder": "実験タイトル"},
     )
     content_md = TextAreaField(
         "ノート (Markdown)",
+        validators=[
+            DataRequired(message="本文は必須です"),
+            Length(min=1, message="本文を入力してください"),
+        ],
         render_kw={
             "rows": 20,
             "placeholder": "Markdownで実験内容を記述してください",
